@@ -1,0 +1,83 @@
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<app-header section="noticias" />
+
+<main id="contenido" tabindex="-1">
+  <header class="catalog-head grain">
+    <div class="inner">
+      <a class="back" routerLink="/" fragment="noticias"><svg appIcon="chevron-left"></svg> Volver al inicio</a>
+      <span class="section-label">Actualidad</span>
+      <h1>Todas las noticias</h1>
+      <p>Consejos, novedades de la cooperativa y educación financiera para tomar mejores decisiones.</p>
+
+      <div class="tools">
+        <label class="search">
+          <svg appIcon="search"></svg>
+          <span class="sr-only">Buscar noticias</span>
+          <input
+            type="search"
+            placeholder="Buscar por título o tema"
+            [value]="query()"
+            (input)="query.set($any($event.target).value)"
+          />
+        </label>
+
+        @if (categories().length > 1) {
+          <div class="chips" role="group" aria-label="Filtrar por categoría">
+            <button type="button" [class.on]="!category()" [attr.aria-pressed]="!category()" (click)="category.set(null)">
+              Todas
+            </button>
+            @for (cat of categories(); track cat) {
+              <button type="button" [class.on]="category() === cat" [attr.aria-pressed]="category() === cat" (click)="category.set(cat)">
+                {{ cat }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <section class="catalog" aria-live="polite">
+    <p class="count">
+      @if (filtering()) {
+        <b class="num">{{ results().length }}</b> de <span class="num">{{ total() }}</span> noticias
+        <button type="button" class="clear" (click)="clear()">Quitar filtros</button>
+      } @else {
+        <b class="num">{{ total() }}</b> {{ total() === 1 ? 'noticia publicada' : 'noticias publicadas' }}
+      }
+    </p>
+
+    @if (results().length) {
+      <div class="grid stagger" appReveal>
+        @for (item of results(); track item.slug; let first = $first) {
+          <article class="card" [class.wide]="first && !filtering()">
+            <div class="card-image">
+              <img [src]="item.image" [alt]="item.imageAlt" loading="lazy" />
+              <span class="tag">{{ item.category }}</span>
+            </div>
+            <div class="card-body">
+              <time [attr.datetime]="item.isoDate">{{ item.date }} · {{ item.readingMinutes }} min de lectura</time>
+              <h2><a [routerLink]="['/noticias', item.slug]">{{ item.title }}</a></h2>
+              <p>{{ item.text }}</p>
+              <span class="more" aria-hidden="true">Leer noticia <svg appIcon="arrow-up-right"></svg></span>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty">
+        <span class="icon"><svg appIcon="search"></svg></span>
+        @if (filtering()) {
+          <b>No hay noticias con ese filtro</b>
+          <span>Prueba con otra palabra o categoría.</span>
+          <button type="button" class="button secondary" (click)="clear()">Ver todas</button>
+        } @else {
+          <b>Aún no hay noticias publicadas</b>
+          <span>Vuelve pronto para conocer las novedades de la cooperativa.</span>
+        }
+      </div>
+    }
+  </section>
+</main>
+
+<app-footer />

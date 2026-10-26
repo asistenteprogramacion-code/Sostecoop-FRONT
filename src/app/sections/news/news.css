@@ -1,0 +1,241 @@
+.news {
+  padding: 56px var(--gutter) 130px;
+  background:
+    radial-gradient(50% 60% at 100% 0%, #e2f2ec 0, transparent 70%),
+    var(--soft);
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 52px;
+}
+
+.section-heading .section-title {
+  margin-bottom: 0;
+  max-width: 12em;
+}
+
+.news-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 42px;
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--mint);
+  color: var(--green-strong);
+  font-size: 12px;
+}
+
+.news-grid.single {
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+}
+
+.news-grid.single article.featured {
+  grid-row: auto;
+  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-rows: none;
+}
+
+.empty {
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  background: white;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Destacada grande a la izquierda, dos horizontales apiladas a la derecha. */
+.news-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 22px;
+}
+
+article {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.4s var(--ease-out),
+    box-shadow 0.4s var(--ease-out);
+}
+
+article.featured {
+  grid-row: 1 / 3;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
+}
+
+article:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.news-image {
+  position: relative;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+article.featured .news-image {
+  min-height: 300px;
+}
+
+.news-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease-out);
+}
+
+article:hover img {
+  transform: scale(1.05);
+}
+
+.tag {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #ffffffeb;
+  backdrop-filter: blur(6px);
+  color: var(--green-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.news-content {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 26px 26px;
+}
+
+article.featured .news-content {
+  padding: 30px 32px 32px;
+}
+
+time {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: #7e9099;
+}
+
+h3 {
+  font: 600 20px / 1.3 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  margin: 8px 0 10px;
+}
+
+article.featured h3 {
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+/* Toda la tarjeta es clicable a través del enlace del título. */
+h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+h3 a:focus-visible {
+  outline: none;
+}
+
+article:has(h3 a:focus-visible) {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+.news-content p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 18px;
+  color: var(--green-strong);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.more svg {
+  width: 17px;
+  height: 17px;
+  transition: transform 0.3s var(--ease-out);
+}
+
+article:hover .more svg {
+  transform: translate(2px, -2px);
+}
+
+@media (max-width: 960px) {
+  .news {
+    padding: 64px 20px 100px;
+  }
+
+  .news-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  article.featured {
+    grid-row: auto;
+  }
+
+  .section-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-heading {
+    display: block;
+  }
+
+  .news-footer {
+    margin-top: 30px;
+  }
+
+  article,
+  .news-grid.single article.featured {
+    grid-template-columns: 1fr;
+  }
+
+  .news-image,
+  article.featured .news-image {
+    min-height: 210px;
+  }
+
+  article.featured h3 {
+    font-size: 22px;
+  }
+}

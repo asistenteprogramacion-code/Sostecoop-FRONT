@@ -1,0 +1,131 @@
+@for (key of keys(); track key) {
+  @let value = obj()[key];
+  @let k = kind(key, value);
+  @let err = error(key);
+  @switch (k) {
+    @case ('image') {
+      <div class="cell full">
+        <app-image-field [label]="label(key)" [value]="$any(value)" (valueChange)="set(key, $event)" />
+      </div>
+    }
+    @case ('group') {
+      <fieldset class="group cell full">
+        <legend>{{ label(key) }}</legend>
+        <app-object-fields
+          [obj]="asObj(value)"
+          [sectionKey]="sectionKey()"
+          [path]="path() + key + '.'"
+          [errors]="errors()"
+          (changed)="changed.emit()"
+        />
+      </fieldset>
+    }
+    @case ('list') {
+      <fieldset class="group cell full">
+        <legend>
+          <span>{{ listName(key) }} <span class="adm-badge muted">{{ list(key).length }}</span></span>
+          @if (list(key).length > 1 && isObj(list(key)[0])) {
+            <span class="fold-all">
+              <button type="button" (click)="setAll(key, true)">Abrir todos</button>
+              <button type="button" (click)="setAll(key, false)">Cerrar todos</button>
+            </span>
+          }
+        </legend>
+
+        @for (item of list(key); track $index; let i = $index, first = $first, last = $last) {
+          @let open = !isObj(item) || isOpen(key, i);
+          @let itemErr = itemErrors(key, i);
+          <div class="item" [class.open]="open" [class.has-error]="itemErr">
+            <div class="item-head">
+              <span class="index">{{ i + 1 }}</span>
+              @if (!isObj(item)) {
+                <input class="adm-input" [ngModel]="item" (ngModelChange)="setItem(key, i, $event)" [attr.aria-label]="label(key) + ' ' + (i + 1)" />
+              } @else {
+                <button class="item-toggle" type="button" [attr.aria-expanded]="open" (click)="toggle(key, i)">
+                  <span class="item-text">
+                    <b>{{ itemTitle(item) || 'Sin título' }}</b>
+                    @if (itemMeta(item)) { <small>{{ itemMeta(item) }}</small> }
+                  </span>
+                  @if (itemErr) {
+                    <span class="err-badge" [attr.aria-label]="itemErr + ' errores'"><svg appIcon="alert"></svg>{{ itemErr }}</span>
+                  }
+                  <svg class="chev" appIcon="chevron-down"></svg>
+                </button>
+              }
+              <div class="item-actions">
+                <button class="adm-btn quiet icon" type="button" [disabled]="first" (click)="move(key, i, -1)" [attr.aria-label]="'Subir elemento ' + (i + 1)" title="Subir">
+                  <svg appIcon="move-up"></svg>
+                </button>
+                <button class="adm-btn quiet icon" type="button" [disabled]="last" (click)="move(key, i, 1)" [attr.aria-label]="'Bajar elemento ' + (i + 1)" title="Bajar">
+                  <svg appIcon="move-down"></svg>
+                </button>
+                <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" title="Quitar">
+                  <svg appIcon="trash"></svg>
+                </button>
+              </div>
+            </div>
+            @if (isObj(item) && open) {
+              <div class="item-body">
+                <app-object-fields
+                  [obj]="asObj(item)"
+                  [sectionKey]="sectionKey()"
+                  [path]="path() + key + '.' + i + '.'"
+                  [errors]="errors()"
+                  (changed)="changed.emit()"
+                />
+              </div>
+            }
+          </div>
+        } @empty {
+          <p class="none">Todavía no hay nada aquí. Usa el botón de abajo para agregar.</p>
+        }
+
+        <button class="add" type="button" (click)="add(key)"><svg appIcon="plus"></svg> {{ addText(key) }}</button>
+      </fieldset>
+    }
+    @case ('link') {
+      <app-link-field
+        class="cell"
+        [class.full]="!short(key, k)"
+        [label]="label(key)"
+        [value]="$any(value) ?? ''"
+        [optional]="key === 'cta_anchor'"
+        [error]="err"
+        (valueChange)="set(key, $event)"
+      />
+    }
+    @case ('icon') {
+      <app-icon-field class="cell" [label]="label(key)" [value]="$any(value) ?? ''" (valueChange)="set(key, $event)" />
+    }
+    @case ('bool') {
+      <label class="adm-switch cell">
+        <input type="checkbox" [ngModel]="value" (ngModelChange)="set(key, $event)" />
+        {{ label(key) }}
+      </label>
+    }
+    @default {
+      <label class="adm-field cell" [class.full]="!short(key, k)" [class.invalid]="err">
+        <span>{{ label(key) }}</span>
+        @switch (k) {
+          @case ('long') {
+            <textarea class="adm-input" [rows]="key === 'body' ? 12 : 3" [ngModel]="value" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err"></textarea>
+          }
+          @case ('date') {
+            <input class="adm-input" type="date" [ngModel]="value ?? ''" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err" />
+          }
+          @case ('number') {
+            <input class="adm-input" type="number" min="0" [ngModel]="value" (ngModelChange)="set(key, $event ?? 0)" [attr.aria-invalid]="!!err" />
+          }
+          @default {
+            <input class="adm-input" [ngModel]="value ?? ''" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err" />
+          }
+        }
+        @if (err) {
+          <small class="err"><svg appIcon="alert"></svg>{{ err }}</small>
+        } @else if (hint(key)) {
+          <small class="hint">{{ hint(key) }}</small>
+        }
+      </label>
+    }
+  }
+}

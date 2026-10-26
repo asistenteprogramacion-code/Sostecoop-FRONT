@@ -1,0 +1,110 @@
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<app-header section="noticias" />
+
+<main id="contenido" tabindex="-1">
+  @if (article(); as article) {
+    <article>
+      <header class="article-head grain">
+        <div class="head-inner">
+          <a class="back" routerLink="/noticias"><svg appIcon="chevron-left"></svg> Todas las noticias</a>
+          <span class="tag">{{ article.category }}</span>
+          <h1>{{ article.title }}</h1>
+          <p class="lead">{{ article.text }}</p>
+          <div class="meta">
+            <span class="author">
+              <span class="avatar" aria-hidden="true"><svg appIcon="users"></svg></span>
+              {{ article.author }}
+            </span>
+            <span class="sep" aria-hidden="true"></span>
+            <time [attr.datetime]="article.isoDate">{{ article.date }}</time>
+            <span class="sep" aria-hidden="true"></span>
+            <span><svg appIcon="clock"></svg> {{ article.readingMinutes }} min de lectura</span>
+          </div>
+        </div>
+      </header>
+
+      <figure class="cover">
+        <img [src]="article.image" [alt]="article.imageAlt" fetchpriority="high" />
+      </figure>
+
+      <div class="body">
+        @for (block of blocks(); track $index) {
+          @switch (block.type) {
+            @case ('h') {
+              <h2>{{ block.text }}</h2>
+            }
+            @case ('list') {
+              <ul>
+                @for (item of block.items; track $index) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            }
+            @case ('quote') {
+              <blockquote><svg appIcon="quote"></svg>{{ block.text }}</blockquote>
+            }
+            @default {
+              <p>{{ block.text }}</p>
+            }
+          }
+        }
+
+        <div class="share">
+          <span>Compartir</span>
+          <button class="share-btn" type="button" (click)="copyLink()">
+            <svg [appIcon]="copied() ? 'check' : 'layers'"></svg>
+            {{ copied() ? 'Enlace copiado' : 'Copiar enlace' }}
+          </button>
+          <a class="share-btn" [href]="whatsappLink()" target="_blank" rel="noopener">
+            <svg appIcon="phone"></svg> WhatsApp
+          </a>
+        </div>
+
+        <aside class="cta grain">
+          <div>
+            <h2>¿Quieres que te acompañemos?</h2>
+            <p>Nuestro equipo te asesora sin costo para que tomes la mejor decisión.</p>
+          </div>
+          <a class="button primary" routerLink="/" fragment="contacto">Hablemos <svg appIcon="arrow"></svg></a>
+        </aside>
+      </div>
+    </article>
+
+    @if (related().length) {
+    <section class="related" aria-labelledby="mas-noticias">
+      <div class="related-head">
+        <h2 id="mas-noticias">Sigue leyendo</h2>
+        <a routerLink="/noticias">Ver todas <svg appIcon="arrow"></svg></a>
+      </div>
+      <div class="related-grid stagger" appReveal>
+        @for (item of related(); track item.slug) {
+          <article class="card">
+            <div class="card-image">
+              <img [src]="item.image" [alt]="item.imageAlt" loading="lazy" />
+              <span class="tag small">{{ item.category }}</span>
+            </div>
+            <div class="card-body">
+              <time [attr.datetime]="item.isoDate">{{ item.date }} · {{ item.readingMinutes }} min</time>
+              <h3><a [routerLink]="['/noticias', item.slug]">{{ item.title }}</a></h3>
+              <p>{{ item.text }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+    }
+  } @else if (loading()) {
+    <section class="not-found" aria-busy="true">
+      <p>Cargando noticia…</p>
+    </section>
+  } @else {
+    <section class="not-found">
+      <span class="icon"><svg appIcon="help"></svg></span>
+      <h1>No encontramos esta noticia</h1>
+      <p>Puede que el enlace esté incompleto o que la noticia ya no esté publicada.</p>
+      <a class="button primary" routerLink="/noticias">Ver todas las noticias <svg appIcon="arrow"></svg></a>
+    </section>
+  }
+</main>
+
+<app-footer />

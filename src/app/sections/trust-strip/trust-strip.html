@@ -1,0 +1,13 @@
+<section class="trust" aria-label="Principios de la cooperativa">
+  <div class="card stagger" appReveal>
+    @for (item of principles; track item.title) {
+      <div class="item">
+        <span class="icon"><svg [appIcon]="item.icon"></svg></span>
+        <div>
+          <b>{{ item.title }}</b>
+          <small>{{ item.text }}</small>
+        </div>
+      </div>
+    }
+  </div>
+</section>

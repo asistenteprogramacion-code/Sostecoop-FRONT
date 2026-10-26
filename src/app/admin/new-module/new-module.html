@@ -1,0 +1,85 @@
+<a class="back" routerLink="/admin/secciones"><svg appIcon="chevron-left"></svg> Contenido del sitio</a>
+
+<header class="adm-page-head">
+  <div>
+    <h1>Nuevo módulo</h1>
+    <p>Un módulo es un bloque nuevo de la página principal. Elige un nombre y cómo quieres que se vea; después llenas su contenido.</p>
+  </div>
+</header>
+
+<form class="steps" (ngSubmit)="create()" novalidate>
+  <section class="adm-card step">
+    <span class="num">1</span>
+    <div class="step-body">
+      <h2>¿Cómo se llama?</h2>
+      <label class="adm-field">
+        <span>Nombre del módulo</span>
+        <input
+          class="adm-input"
+          name="name"
+          maxlength="40"
+          placeholder="Por ejemplo: Ahorro escolar"
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+          (blur)="touched.set(true)"
+          [attr.aria-invalid]="touched() && !!nameError()"
+        />
+        @if (touched() && nameError()) {
+          <small class="err"><svg appIcon="alert"></svg>{{ nameError() }}</small>
+        } @else if (name().trim()) {
+          <small class="hint">Así aparecerá en el menú. Su dirección en la página será <code>#{{ key() }}</code>.</small>
+        }
+      </label>
+    </div>
+  </section>
+
+  <section class="adm-card step">
+    <span class="num">2</span>
+    <div class="step-body">
+      <h2>¿Cómo quieres que se vea?</h2>
+      <div class="templates" role="radiogroup" aria-label="Plantilla del módulo">
+        @for (t of templates; track t.id) {
+          <label class="template" [class.on]="template() === t.id">
+            <input type="radio" name="template" [value]="t.id" [checked]="template() === t.id" (change)="template.set(t.id)" />
+            <span class="preview" [class]="'preview p-' + t.id" aria-hidden="true">
+              <i></i><i></i><i></i><i></i>
+            </span>
+            <b>{{ t.name }}</b>
+            <small>{{ t.description }}</small>
+            <span class="check" aria-hidden="true"><svg appIcon="check"></svg></span>
+          </label>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="adm-card step">
+    <span class="num">3</span>
+    <div class="step-body">
+      <h2>¿Dónde aparece?</h2>
+      <div class="options">
+        <label class="adm-switch">
+          <input type="checkbox" name="inMenu" [ngModel]="inMenu()" (ngModelChange)="inMenu.set($event)" />
+          Agregarlo al menú de la página
+        </label>
+        <label class="adm-switch">
+          <input type="checkbox" name="visible" [ngModel]="visible()" (ngModelChange)="visible.set($event)" />
+          Publicarlo de una vez (si no, queda oculto mientras lo llenas)
+        </label>
+      </div>
+      <p class="hint">Aparecerá antes de la sección de contacto. Puedes cambiar su orden arrastrándolo en «Contenido del sitio».</p>
+    </div>
+  </section>
+
+  @if (error()) {
+    <p class="adm-alert" role="alert"><svg appIcon="alert"></svg>{{ error() }}</p>
+  }
+
+  <div class="actions">
+    <a class="adm-btn quiet" routerLink="/admin/secciones">Cancelar</a>
+    <button class="adm-btn primary" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Creando…' : 'Crear módulo' }}
+      @if (!saving()) { <svg appIcon="arrow"></svg> }
+    </button>
+  </div>
+</form>

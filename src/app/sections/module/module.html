@@ -1,0 +1,91 @@
+<section class="module" [id]="id()" [class]="'module t-' + template()">
+  @switch (template()) {
+    @case ('texto-imagen') {
+      <div class="split">
+        <div class="split-copy stagger" appReveal>
+          <span class="section-label">{{ section().title }}</span>
+          <h2 class="section-title">{{ title() }}</h2>
+          <div class="text">
+            @for (p of body(); track $index) {
+              <p>{{ p }}</p>
+            }
+          </div>
+          @if (cta(); as cta) {
+            @if (cta.external) {
+              <a class="button primary" [href]="cta.external" target="_blank" rel="noopener">{{ cta.label }} <svg appIcon="arrow"></svg></a>
+            } @else {
+              <a class="button primary" [routerLink]="cta.path" [fragment]="cta.fragment ?? undefined">{{ cta.label }} <svg appIcon="arrow"></svg></a>
+            }
+          }
+        </div>
+        <div class="split-image" appReveal>
+          <img [src]="image()" [alt]="title()" loading="lazy" />
+        </div>
+      </div>
+    }
+
+    @case ('preguntas') {
+      <div class="faq">
+        <div class="faq-head" appReveal>
+          <span class="section-label">{{ section().title }}</span>
+          <h2 class="section-title">{{ title() }}</h2>
+          @if (subtitle()) { <p class="lead">{{ subtitle() }}</p> }
+        </div>
+        <div class="faq-list stagger" appReveal>
+          @for (item of items(); track $index; let first = $first) {
+            <details [open]="first">
+              <summary>
+                {{ str(item, 'question') }}
+                <svg appIcon="plus"></svg>
+              </summary>
+              <p>{{ str(item, 'answer') }}</p>
+            </details>
+          }
+        </div>
+      </div>
+    }
+
+    @case ('testimonios') {
+      <div class="head center" appReveal>
+        <span class="section-label">{{ section().title }}</span>
+        <h2 class="section-title">{{ title() }}</h2>
+        @if (subtitle()) { <p class="lead">{{ subtitle() }}</p> }
+      </div>
+      <div class="quotes stagger" appReveal>
+        @for (item of items(); track $index) {
+          <figure>
+            <svg class="mark" appIcon="quote"></svg>
+            <blockquote>{{ str(item, 'text') }}</blockquote>
+            <figcaption>
+              @if (photo(item)) {
+                <img [src]="photo(item)" [alt]="str(item, 'name')" loading="lazy" />
+              } @else {
+                <span class="avatar" aria-hidden="true">{{ initials(str(item, 'name')) }}</span>
+              }
+              <b>{{ str(item, 'name') }}</b>
+            </figcaption>
+          </figure>
+        }
+      </div>
+    }
+
+    @default {
+      <div class="head" appReveal>
+        <div>
+          <span class="section-label">{{ section().title }}</span>
+          <h2 class="section-title">{{ title() }}</h2>
+        </div>
+        @if (subtitle()) { <p class="lead">{{ subtitle() }}</p> }
+      </div>
+      <div class="cards stagger" appReveal>
+        @for (item of items(); track $index) {
+          <article>
+            <span class="icon"><svg [appIcon]="icon(item['icon'])"></svg></span>
+            <h3>{{ str(item, 'title') }}</h3>
+            <p>{{ str(item, 'text') }}</p>
+          </article>
+        }
+      </div>
+    }
+  }
+</section>

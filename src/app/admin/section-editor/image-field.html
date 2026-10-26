@@ -1,0 +1,33 @@
+<div class="adm-field">
+  <span>{{ label() }}</span>
+  <div class="box" [class.uploading]="uploading()">
+    <div class="thumb">
+      @if (preview()) {
+        <img [src]="preview()" [alt]="'Vista previa: ' + label()" />
+      } @else {
+        <span class="empty">
+          <svg appIcon="upload"></svg>
+          <small>Sin imagen propia<br />se usa la del diseño</small>
+        </span>
+      }
+      @if (uploading()) {
+        <span class="progress" aria-hidden="true"></span>
+      }
+    </div>
+
+    <div class="actions">
+      <label class="adm-btn ghost small pick" [class.disabled]="uploading()">
+        <svg appIcon="upload"></svg>
+        {{ uploading() ? 'Subiendo…' : value() ? 'Cambiar imagen' : 'Subir imagen' }}
+        <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="uploading()" (change)="pick($event)" />
+      </label>
+      @if (value() && !uploading()) {
+        <button class="adm-btn quiet small remove" type="button" (click)="valueChange.emit('')">Quitar</button>
+      }
+      <small class="hint">PNG, JPG o WEBP · máx. 5 MB</small>
+      @if (error()) {
+        <small class="err" role="alert"><svg appIcon="alert"></svg>{{ error() }}</small>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,34 @@
+<header class="bar">
+  <a routerLink="/" fragment="inicio" class="brand" aria-label="Sostecoop, ir al inicio"><app-logo /></a>
+
+  <nav id="menu-principal" aria-label="Navegación principal">
+    @for (link of links(); track link.label + link.path + link.fragment) {
+      @if (link.external) {
+        <a [href]="link.path" target="_blank" rel="noopener" (click)="menuOpen.set(false)">{{ link.label }}</a>
+      } @else {
+        <a
+          [routerLink]="link.path"
+          [fragment]="link.fragment ?? undefined"
+          [class.active]="isActive(link)"
+          [attr.aria-current]="isActive(link) ? 'location' : null"
+          (click)="menuOpen.set(false)"
+        >{{ link.label }}</a>
+      }
+    }
+  </nav>
+
+  <a class="nav-cta" routerLink="/" fragment="contacto" (click)="menuOpen.set(false)">
+    <span>Hablemos</span> <svg appIcon="arrow"></svg>
+  </a>
+
+  <button
+    class="menu-toggle"
+    type="button"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="menu-principal"
+    [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'"
+    (click)="toggleMenu()"
+  >
+    <svg [appIcon]="menuOpen() ? 'close' : 'menu'"></svg>
+  </button>
+</header>

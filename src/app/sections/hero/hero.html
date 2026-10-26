@@ -1,0 +1,32 @@
+@if (hero(); as hero) {
+  <section class="hero grain" id="inicio">
+    <div class="hero-copy">
+      <span class="eyebrow"><svg appIcon="shield"></svg> {{ hero.eyebrow }}</span>
+      <h1>{{ hero.title }}</h1>
+      <p>{{ hero.subtitle }}</p>
+      <div class="hero-actions">
+        <a class="button primary" [href]="hero.cta_anchor">{{ hero.cta_label }} <svg appIcon="arrow"></svg></a>
+        <a class="button secondary" [href]="secondary().href">{{ secondary().label }}</a>
+      </div>
+      <dl class="hero-values">
+        @for (item of hero.stats; track $index) {
+          <div>
+            <dt class="num">{{ item.value }}</dt>
+            <dd>{{ item.label }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+
+    <div class="hero-image">
+      <img [src]="image()" alt="Grupo de personas compartiendo en comunidad" fetchpriority="high" />
+      <div class="floating-card">
+        <span><svg appIcon="chart"></svg></span>
+        <div>
+          <small>{{ hero.badge_label }}</small>
+          <b>{{ hero.badge_title }}</b>
+        </div>
+      </div>
+    </div>
+  </section>
+}

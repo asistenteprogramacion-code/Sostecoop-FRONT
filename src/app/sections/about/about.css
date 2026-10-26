@@ -1,0 +1,154 @@
+.about {
+  padding: 130px var(--gutter) 140px;
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: 96px;
+  align-items: center;
+}
+
+.about-images {
+  position: relative;
+  isolation: isolate;
+  padding: 0 34px 56px 0;
+}
+
+.about-images::before {
+  content: "";
+  position: absolute;
+  inset: 40px 0 0 48px;
+  background:
+    radial-gradient(#11966f2e 1.5px, transparent 1.5px) 0 0 / 16px 16px,
+    var(--mint);
+  z-index: -1;
+  border-radius: var(--radius-lg);
+}
+
+.about-main {
+  width: 100%;
+  height: 560px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.about-quote {
+  position: absolute;
+  right: -28px;
+  bottom: 0;
+  width: 290px;
+  margin: 0;
+  background: var(--navy);
+  color: white;
+  padding: 26px 26px 28px;
+  border-radius: 18px;
+  box-shadow: 0 24px 48px -16px #0b2c4380;
+}
+
+.about-quote svg {
+  width: 26px;
+  height: 26px;
+  color: #4ed4aa;
+  margin-bottom: 10px;
+}
+
+blockquote {
+  margin: 0;
+  font: 500 17px / 1.5 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.text {
+  max-width: 36em;
+  display: grid;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.mission-grid {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.mission-grid article {
+  padding: 22px 22px 24px;
+  border-radius: var(--radius);
+  background: var(--soft);
+  border: 1px solid transparent;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s,
+    transform 0.35s var(--ease-out);
+}
+
+.mission-grid article:hover {
+  background: white;
+  border-color: var(--line);
+  transform: translateY(-3px);
+}
+
+.mission-grid .num {
+  display: inline-block;
+  color: var(--gold);
+  font: 700 13px var(--font-display);
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+
+.mission-grid h3 {
+  font: 600 19px var(--font-display);
+  letter-spacing: -0.015em;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.mission-grid p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 960px) {
+  .about {
+    grid-template-columns: 1fr;
+    gap: 72px;
+    padding: 110px 20px;
+  }
+
+  .about-images {
+    max-width: 600px;
+    margin: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .about {
+    padding: 90px 20px;
+  }
+
+  .about-images {
+    padding-right: 14px;
+  }
+
+  .about-main {
+    height: 400px;
+  }
+
+  .about-quote {
+    right: 0;
+    width: min(260px, 85%);
+    padding: 20px;
+  }
+
+  blockquote {
+    font-size: 15px;
+  }
+
+  .mission-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,42 @@
+@if (contact(); as contact) {
+  <section class="contact" id="contacto">
+    <div class="contact-intro stagger" appReveal>
+      <span class="section-label">{{ contact.label }}</span>
+      <h2 class="section-title">{{ contact.title }}</h2>
+      <p>{{ contact.subtitle }}</p>
+
+      <div class="contact-cards">
+        <a [href]="'mailto:' + contact.email">
+          <span class="icon"><svg appIcon="mail"></svg></span>
+          <span><small>Correo electrónico</small><b>{{ contact.email }}</b></span>
+        </a>
+        <a [href]="tel(contact.phone)">
+          <span class="icon"><svg appIcon="phone"></svg></span>
+          <span><small>Línea de atención</small><b class="num">{{ contact.phone }}</b></span>
+        </a>
+        @if (contact.map_url) {
+          <a [href]="contact.map_url" target="_blank" rel="noopener">
+            <span class="icon"><svg appIcon="pin"></svg></span>
+            <span><small>Oficina principal · ver mapa</small><b>{{ contact.address }}</b></span>
+          </a>
+        } @else {
+          <div>
+            <span class="icon"><svg appIcon="pin"></svg></span>
+            <span><small>Oficina principal</small><b>{{ contact.address }}</b></span>
+          </div>
+        }
+        <div>
+          <span class="icon"><svg appIcon="clock"></svg></span>
+          <span><small>Horario de atención</small><b>{{ contact.schedule }}</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-panel grain" appReveal>
+      <span class="kicker">Atención personalizada</span>
+      <h3>{{ contact.form_title }}</h3>
+      <p>{{ contact.form_text }}</p>
+      <app-contact-form />
+    </div>
+  </section>
+}

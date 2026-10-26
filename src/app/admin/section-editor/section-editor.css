@@ -1,0 +1,269 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 18px -4px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+.back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.back:hover {
+  color: var(--navy);
+  background: #e8efee;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.title > div {
+  min-width: 0;
+}
+
+.title h1 {
+  overflow-wrap: anywhere;
+}
+
+.adm-tile.big {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+}
+
+.adm-tile.big svg {
+  width: 24px;
+  height: 24px;
+}
+
+.title p {
+  margin-top: 4px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 22px;
+  align-items: start;
+}
+
+.fields {
+  display: grid;
+  gap: 18px;
+  padding: 26px;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.side {
+  min-width: 0;
+  position: sticky;
+  top: 28px;
+  display: grid;
+  gap: 14px;
+}
+
+.block {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+}
+
+.block h2 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.block .hint,
+.note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.note {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--soft);
+}
+
+.side .adm-btn {
+  width: 100%;
+}
+
+.status p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin: 0;
+}
+
+.dirty {
+  color: var(--adm-warn);
+  font-weight: 600;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e0a33a;
+  box-shadow: 0 0 0 4px #e0a33a2e;
+}
+
+.saved {
+  color: var(--green-strong);
+  font-weight: 600;
+}
+
+.saved svg {
+  width: 16px;
+  height: 16px;
+}
+
+.meta {
+  color: var(--muted);
+}
+
+.confirm {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--adm-danger-soft);
+  font-size: 14px;
+  font-weight: 600;
+  color: #8f2a2a;
+  animation: pop 0.25s var(--ease-out);
+}
+
+.confirm div {
+  display: flex;
+  gap: 6px;
+}
+
+.confirm .adm-btn {
+  width: auto;
+  flex: 1;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.danger-zone {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.delete:hover:not(:disabled) {
+  background: var(--adm-danger-soft) !important;
+  color: var(--adm-danger) !important;
+}
+
+/* Esqueleto */
+.sk-head {
+  display: block;
+  width: 280px;
+  max-width: 70%;
+  height: 34px;
+  margin-bottom: 28px;
+}
+
+.skeleton .fields > span {
+  display: block;
+}
+
+.sk-label {
+  width: 120px;
+  height: 12px;
+}
+
+.sk-input {
+  height: 42px;
+}
+
+.sk-area {
+  display: block;
+  height: 110px;
+}
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* El panel lateral pasa arriba y el botón de guardar queda fijo abajo. */
+  .side {
+    position: static;
+    order: -1;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    align-items: start;
+  }
+
+  .side .save-btn {
+    display: none;
+  }
+
+  .layout .save-bar {
+    display: flex;
+  }
+
+  /* Espacio para que la barra fija no tape los últimos campos. */
+  .layout {
+    padding-bottom: 80px;
+  }
+}
+
+.save-bar {
+  display: none;
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: var(--z-header);
+  max-width: 640px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 12px 18px;
+  border-radius: 14px;
+  background: var(--navy);
+  color: white;
+  font-size: 14px;
+  box-shadow: var(--shadow-lg);
+  animation: pop 0.25s var(--ease-out);
+}
+
+.save-bar .adm-btn {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .fields {
+    padding: 18px;
+  }
+
+  .title {
+    align-items: flex-start;
+  }
+}

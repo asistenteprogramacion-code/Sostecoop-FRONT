@@ -1,0 +1,32 @@
+@if (about(); as about) {
+  <section class="about" id="nosotros">
+    <div class="about-images" appReveal>
+      <img class="about-main" [src]="image()" alt="Equipo de la cooperativa reunido" loading="lazy" />
+      @if (about.quote) {
+        <figure class="about-quote">
+          <svg appIcon="quote"></svg>
+          <blockquote>{{ about.quote }}</blockquote>
+        </figure>
+      }
+    </div>
+
+    <div class="about-copy stagger" appReveal>
+      <span class="section-label">{{ about.label }}</span>
+      <h2 class="section-title">{{ about.title }}</h2>
+      <div class="text">
+        @for (p of paragraphs(); track $index) {
+          <p>{{ p }}</p>
+        }
+      </div>
+      <div class="mission-grid">
+        @for (item of items(); track $index) {
+          <article>
+            <span class="num">{{ ($index + 1).toString().padStart(2, '0') }}</span>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+}

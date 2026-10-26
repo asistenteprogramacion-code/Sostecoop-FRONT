@@ -1,0 +1,101 @@
+<header class="adm-page-head">
+  <div>
+    <h1>Mensajes</h1>
+    <p>Lo que envían los visitantes desde el formulario de contacto. Los nuevos llegan solos.</p>
+  </div>
+  <div class="filters" role="tablist" aria-label="Filtrar mensajes">
+    <button type="button" role="tab" [attr.aria-selected]="filter() === 'todos'" [class.on]="filter() === 'todos'" (click)="filter.set('todos')">
+      Todos <span class="adm-badge muted">{{ store.messages().length }}</span>
+    </button>
+    <button type="button" role="tab" [attr.aria-selected]="filter() === 'sin-leer'" [class.on]="filter() === 'sin-leer'" (click)="filter.set('sin-leer')">
+      Sin leer <span class="adm-badge" [class.muted]="!store.unread()">{{ store.unread() }}</span>
+    </button>
+  </div>
+</header>
+
+@if (store.error()) {
+  <div class="adm-alert" role="alert">
+    <svg appIcon="alert"></svg>
+    <span>{{ store.error() }}</span>
+    <button class="adm-btn ghost small" type="button" (click)="store.load()">Reintentar</button>
+  </div>
+}
+
+@if (store.loading()) {
+  <ul class="list" aria-busy="true" aria-label="Cargando mensajes">
+    @for (s of skeletons; track s) {
+      <li class="msg skeleton">
+        <span class="adm-skeleton sk-avatar"></span>
+        <span class="lines">
+          <span class="adm-skeleton sk-name"></span>
+          <span class="adm-skeleton sk-text"></span>
+        </span>
+      </li>
+    }
+  </ul>
+} @else {
+  <ul class="list">
+    @for (msg of visible(); track msg.id) {
+      <li class="msg" [class.unread]="!msg.read" [class.open]="openId() === msg.id">
+        <button class="summary" type="button" [attr.aria-expanded]="openId() === msg.id" (click)="toggle(msg)">
+          <span class="avatar" aria-hidden="true">{{ initials(msg.name) }}</span>
+          <span class="who">
+            <b>
+              {{ msg.name }}
+              @if (!msg.read) { <span class="new">Nuevo</span> }
+            </b>
+            <span class="preview">{{ msg.message }}</span>
+          </span>
+          <time [attr.datetime]="msg.created_at" [attr.title]="date(msg.created_at)">{{ timeAgo(msg.created_at) }}</time>
+          <svg class="chev" appIcon="chevron-down"></svg>
+        </button>
+
+        @if (openId() === msg.id) {
+          <div class="body">
+            <p class="text">{{ msg.message }}</p>
+            <dl>
+              <div><dt>Correo</dt><dd><a [href]="'mailto:' + msg.email">{{ msg.email }}</a></dd></div>
+              @if (msg.phone) {
+                <div><dt>Teléfono</dt><dd><a class="num" [href]="'tel:' + msg.phone">{{ msg.phone }}</a></dd></div>
+              }
+              <div><dt>Recibido</dt><dd>{{ date(msg.created_at) }}</dd></div>
+            </dl>
+
+            <div class="actions">
+              @if (confirmDeleteId() === msg.id) {
+                <div class="confirm" role="group" aria-label="Confirmar borrado">
+                  <span>¿Borrar este mensaje? No se puede deshacer.</span>
+                  <button class="adm-btn danger solid small" type="button" [disabled]="busyId() === msg.id" (click)="remove(msg)">
+                    {{ busyId() === msg.id ? 'Borrando…' : 'Sí, borrar' }}
+                  </button>
+                  <button class="adm-btn quiet small" type="button" (click)="confirmDeleteId.set(null)">Cancelar</button>
+                </div>
+              } @else {
+                <a class="adm-btn primary small" [href]="replyLink(msg)"><svg appIcon="reply"></svg> Responder</a>
+                @if (!msg.read) {
+                  <button class="adm-btn ghost small" type="button" [disabled]="busyId() === msg.id" (click)="markRead(msg)">
+                    <svg appIcon="check"></svg> Marcar como leído
+                  </button>
+                }
+                <button class="adm-btn quiet small delete" type="button" (click)="confirmDeleteId.set(msg.id)">
+                  <svg appIcon="trash"></svg> Borrar
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </li>
+    } @empty {
+      <li class="adm-card adm-empty">
+        <span class="art"><svg [appIcon]="filter() === 'sin-leer' ? 'check' : 'inbox'"></svg></span>
+        @if (filter() === 'sin-leer') {
+          <b>Estás al día</b>
+          <span>No tienes mensajes sin leer.</span>
+        } @else {
+          <b>Aún no hay mensajes</b>
+          <span>Cuando alguien escriba desde el formulario del sitio, aparecerá aquí.</span>
+        }
+      </li>
+    }
+  </ul>
+}

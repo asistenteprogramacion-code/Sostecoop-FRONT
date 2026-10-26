@@ -1,0 +1,36 @@
+<aside>
+  <a class="brand" routerLink="/admin" aria-label="Inicio del panel"><app-logo [inverse]="true" /></a>
+  <span class="tag">Panel de administración</span>
+
+  <nav aria-label="Panel">
+    <a routerLink="secciones" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <svg appIcon="layers"></svg>
+      <span>Contenido</span>
+    </a>
+    <a routerLink="mensajes" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <svg appIcon="inbox"></svg>
+      <span>Mensajes</span>
+      @if (inbox.unread()) {
+        <span class="count" [attr.aria-label]="inbox.unread() + ' sin leer'">{{ inbox.unread() }}</span>
+      }
+    </a>
+  </nav>
+
+  <div class="bottom">
+    <a class="site-link" href="/" target="_blank" rel="noopener">
+      <svg appIcon="eye"></svg>
+      <span>Ver sitio</span>
+      <svg class="ext" appIcon="arrow-up-right"></svg>
+    </a>
+    <button class="logout" type="button" (click)="auth.logout()">
+      <svg appIcon="logout"></svg>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+</aside>
+
+<main>
+  <router-outlet />
+</main>
+
+<app-toasts />

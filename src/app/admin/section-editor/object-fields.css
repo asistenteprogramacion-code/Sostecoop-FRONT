@@ -1,0 +1,313 @@
+/* Rejilla de dos columnas: los campos cortos van de a dos y el resto ocupa la fila. */
+:host {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 16px;
+  min-width: 0;
+}
+
+/* Los grupos y elementos son contenedores: los campos internos se adaptan a su ancho. */
+.group,
+.item-body {
+  container-type: inline-size;
+}
+
+.cell {
+  min-width: 0;
+  align-content: start;
+}
+
+.cell.full {
+  grid-column: 1 / -1;
+}
+
+.adm-field > span {
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.err {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #b33a3a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.err svg {
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+}
+
+.invalid .adm-input {
+  border-color: #e39a9a;
+  background: #fffafa;
+}
+
+.invalid .adm-input:focus {
+  border-color: var(--adm-danger);
+  box-shadow: 0 0 0 4px #c23a3a1f;
+}
+
+/* Grupos y listas */
+.group {
+  margin: 0;
+  padding: 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--soft);
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font: 600 16px var(--font-display);
+  color: var(--navy);
+}
+
+legend > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+legend + * {
+  clear: both;
+}
+
+.fold-all {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.fold-all button {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 12px var(--font-body);
+  cursor: pointer;
+}
+
+.fold-all button:hover {
+  background: white;
+  color: var(--navy);
+}
+
+.item {
+  min-width: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid transparent;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+
+.item.open {
+  box-shadow: var(--shadow-sm), 0 0 0 1px #0b2c4314;
+}
+
+.item.has-error {
+  border-color: #efc4c4;
+}
+
+.item:focus-within {
+  box-shadow: var(--shadow-sm), 0 0 0 2px #11966f40;
+}
+
+.item-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 12px;
+  min-width: 0;
+}
+
+.item-head > .adm-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.index {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #f6efe1;
+  color: #9a7330;
+  font: 700 13px var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.item-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.item-toggle:hover {
+  background: var(--soft);
+}
+
+.item-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.item-text b,
+.item-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-text b {
+  font: 600 15px var(--font-display);
+  color: var(--navy);
+}
+
+.item-text small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.err-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--adm-danger-soft);
+  color: var(--adm-danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.err-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chev {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: #a6b5bc;
+  transition: transform 0.25s var(--ease-out);
+}
+
+.item.open .chev {
+  transform: rotate(180deg);
+}
+
+.item-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.item-actions .remove:hover:not(:disabled) {
+  background: var(--adm-danger-soft);
+  color: var(--adm-danger);
+}
+
+.item-body {
+  padding: 4px 16px 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  animation: unfold 0.25s var(--ease-out);
+}
+
+@keyframes unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.none {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  border: 1.5px dashed #b9cfcc;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--green-strong);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.add svg {
+  width: 16px;
+  height: 16px;
+}
+
+.add:hover {
+  background: white;
+  border-color: var(--green);
+}
+
+/* En espacios angostos todo va en una columna y las acciones se compactan. */
+@container (max-width: 520px) {
+  :host {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .item-head {
+    flex-wrap: wrap;
+  }
+
+  .item-toggle {
+    order: 1;
+    flex-basis: calc(100% - 40px);
+  }
+
+  .item-actions {
+    order: 2;
+    margin-left: auto;
+  }
+}

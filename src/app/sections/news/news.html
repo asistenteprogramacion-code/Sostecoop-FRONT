@@ -1,0 +1,41 @@
+@if (section(); as section) {
+  <section class="news" id="noticias">
+    <div class="section-heading" appReveal>
+      <div>
+        <span class="section-label">Actualidad</span>
+        <h2 class="section-title">{{ section.title }}</h2>
+      </div>
+    </div>
+
+    @if (news().length) {
+      <div class="news-grid stagger" appReveal [class.single]="news().length === 1">
+        @for (item of news(); track item.slug; let first = $first) {
+          <article [class.featured]="first">
+            <div class="news-image">
+              <img [src]="item.image" [alt]="item.imageAlt" loading="lazy" />
+              <span class="tag">{{ item.category }}</span>
+            </div>
+            <div class="news-content">
+              <time [attr.datetime]="item.isoDate">{{ item.date }} · {{ item.readingMinutes }} min de lectura</time>
+              <h3>
+                <a [routerLink]="['/noticias', item.slug]">{{ item.title }}</a>
+              </h3>
+              <p>{{ item.text }}</p>
+              <span class="more" aria-hidden="true">Leer noticia <svg appIcon="arrow-up-right"></svg></span>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="empty">Pronto publicaremos novedades aquí.</p>
+    }
+
+    <div class="news-footer" appReveal>
+      <a class="button secondary" routerLink="/noticias">
+        Ver todas las noticias
+        @if (total() > 3) { <span class="count num">{{ total() }}</span> }
+        <svg appIcon="arrow"></svg>
+      </a>
+    </div>
+  </section>
+}

@@ -1,0 +1,271 @@
+.filters {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  background: #e5ecec;
+  border-radius: 12px;
+}
+
+.filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font: 600 14px var(--font-body);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.filters button:hover {
+  color: var(--navy);
+}
+
+.filters button.on {
+  background: white;
+  color: var(--navy);
+  box-shadow: var(--shadow-sm);
+}
+
+.adm-alert {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.adm-alert span {
+  flex: 1;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.msg {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm), 0 0 0 1px #0b2c430d;
+  overflow: hidden;
+  transition: box-shadow 0.25s;
+}
+
+.msg:hover,
+.msg.open {
+  box-shadow: var(--shadow), 0 0 0 1px #0b2c4314;
+}
+
+.summary {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: #e8eeee;
+  color: #5d7380;
+  font: 700 14px var(--font-display);
+}
+
+.unread .avatar {
+  background: var(--mint);
+  color: var(--green-strong);
+}
+
+.who {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.who b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.unread .who b {
+  font-weight: 700;
+}
+
+.new {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--green);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+time {
+  color: #8a9ca5;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.chev {
+  width: 18px;
+  height: 18px;
+  color: #a6b5bc;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.open .chev {
+  transform: rotate(180deg);
+}
+
+.body {
+  padding: 4px 22px 22px 74px;
+  display: grid;
+  gap: 18px;
+  animation: open 0.3s var(--ease-out);
+}
+
+@keyframes open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.text {
+  max-width: 62ch;
+  white-space: pre-wrap;
+  line-height: 1.65;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+dl {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 32px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--soft);
+  font-size: 14px;
+}
+
+dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+dd a {
+  color: var(--green-strong);
+}
+
+dd a:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.delete:hover:not(:disabled) {
+  background: var(--adm-danger-soft) !important;
+  color: var(--adm-danger) !important;
+}
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--adm-danger-soft);
+  color: #8f2a2a;
+  font-size: 14px;
+  font-weight: 600;
+  animation: open 0.25s var(--ease-out);
+}
+
+.confirm span {
+  margin-right: 6px;
+}
+
+/* Esqueleto */
+.skeleton {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+}
+
+.lines {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+}
+
+.sk-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+}
+
+.sk-name {
+  width: 30%;
+  height: 14px;
+}
+
+.sk-text {
+  width: 75%;
+  height: 12px;
+}
+
+@media (max-width: 700px) {
+  .summary {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 14px;
+  }
+
+  .chev {
+    display: none;
+  }
+
+  .body {
+    padding: 0 16px 18px;
+  }
+}

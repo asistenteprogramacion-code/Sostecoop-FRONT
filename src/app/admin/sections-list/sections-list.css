@@ -1,0 +1,298 @@
+.adm-alert {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.adm-alert span {
+  flex: 1;
+}
+
+/* Ajustes generales */
+.settings-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  margin-bottom: 32px;
+  border-radius: var(--radius);
+  background: white;
+  box-shadow: var(--shadow-sm), 0 0 0 1px #0b2c430d;
+  transition: box-shadow 0.25s;
+}
+
+.settings-card:hover {
+  box-shadow: var(--shadow), 0 0 0 1px #0b2c4314;
+}
+
+.settings-card .info {
+  flex: 1;
+}
+
+/* Encabezado del grupo */
+.group-head {
+  margin-bottom: 14px;
+}
+
+.group-head h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.group-head p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.group-head b {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+svg.inline {
+  width: 15px;
+  height: 15px;
+  vertical-align: -3px;
+  color: #93a4ac;
+}
+
+/* Página: portada fija, bloques ordenables y contacto fijo */
+.page {
+  display: grid;
+  gap: 10px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px 18px 14px 10px;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm), 0 0 0 1px #0b2c430d;
+  transition:
+    box-shadow 0.25s,
+    opacity 0.2s;
+}
+
+.row:hover {
+  box-shadow: var(--shadow), 0 0 0 1px #0b2c4314;
+}
+
+.row.fixed {
+  background: #fbfdfc;
+}
+
+.row.busy {
+  opacity: 0.7;
+}
+
+.handle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 42px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #a6b5bc;
+  cursor: grab;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.handle:hover {
+  background: var(--soft);
+  color: var(--navy);
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.placeholder-handle {
+  cursor: default;
+}
+
+.placeholder-handle:hover {
+  background: transparent;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border-radius: 6px;
+}
+
+.info b {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  font: 600 17px var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+
+.info .name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.info:hover .name {
+  color: var(--green-strong);
+}
+
+.row.hidden .info .name {
+  color: #6f848f;
+}
+
+.flag {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #eef2f2;
+  color: var(--muted);
+  font: 600 11px var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+.flag.menu {
+  background: var(--mint);
+  color: var(--green-strong);
+}
+
+.flag.module {
+  background: #f6efe1;
+  color: #8a6526;
+}
+
+.info small {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.info .meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #93a4ac;
+}
+
+.info .meta svg {
+  width: 13px;
+  height: 13px;
+}
+
+.show {
+  flex-shrink: 0;
+  min-width: 96px;
+}
+
+.edit {
+  flex-shrink: 0;
+}
+
+.edit svg {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.edit:hover svg {
+  transform: translateX(2px);
+}
+
+.empty-middle {
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1.5px dashed #c6d6d6;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.empty-middle a {
+  color: var(--green-strong);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Esqueleto */
+.skeleton-row {
+  padding: 18px;
+}
+
+.lines {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+}
+
+.sk-tile {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.sk-title {
+  width: 40%;
+  height: 14px;
+}
+
+.sk-text {
+  width: 70%;
+  height: 12px;
+}
+
+/* Arrastre (CDK) */
+.cdk-drag-preview {
+  box-shadow: var(--shadow-lg);
+}
+
+.placeholder {
+  height: 76px;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 2px dashed #b7dccd;
+  background: #e6f5ef80;
+}
+
+.cdk-drag-animating,
+.list.cdk-drop-list-dragging .row:not(.cdk-drag-placeholder) {
+  transition: transform 250ms var(--ease-out);
+}
+
+@media (max-width: 640px) {
+  .row {
+    flex-wrap: wrap;
+    padding: 14px;
+    gap: 10px 12px;
+  }
+
+  .handle {
+    width: 26px;
+  }
+
+  .info {
+    flex-basis: calc(100% - 100px);
+  }
+
+  .show {
+    margin-left: 38px;
+    margin-right: auto;
+  }
+}

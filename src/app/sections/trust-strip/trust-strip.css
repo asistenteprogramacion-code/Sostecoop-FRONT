@@ -1,0 +1,104 @@
+/* Tarjeta elevada que se monta sobre el borde inferior del hero. */
+.trust {
+  position: relative;
+  z-index: 2;
+  margin-top: -64px;
+  padding: 0 var(--gutter);
+}
+
+.card {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), 0 0 0 1px #0b2c430a;
+  overflow: hidden;
+}
+
+.item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 28px 26px;
+  transition: background-color 0.3s;
+}
+
+.item + .item {
+  border-left: 1px solid var(--line);
+}
+
+.item:hover {
+  background: #f7fbfa;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: var(--mint);
+  color: var(--green);
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.item:hover .icon {
+  transform: translateY(-2px) rotate(-6deg);
+}
+
+.icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+b,
+small {
+  display: block;
+}
+
+b {
+  font: 600 17px var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+
+small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1000px) {
+  .card {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .item:nth-child(3) {
+    border-left: 0;
+  }
+
+  .item:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 560px) {
+  .trust {
+    padding: 0 16px;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .item {
+    padding: 20px;
+  }
+
+  .item + .item {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}

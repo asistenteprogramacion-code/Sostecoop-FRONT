@@ -1,0 +1,47 @@
+@if (state() === 'sent') {
+  <div class="success" role="status">
+    <span class="check"><svg appIcon="check"></svg></span>
+    <b>Mensaje enviado</b>
+    <p>Gracias por escribirnos. Te responderemos lo antes posible.</p>
+    <button type="button" class="link" (click)="state.set('idle')">Enviar otro mensaje</button>
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label>
+      Nombre
+      <input formControlName="name" autocomplete="name" placeholder="¿Cómo te llamas?" [attr.aria-invalid]="!!error('name')" />
+      @if (error('name'); as msg) { <small class="field-error"><svg appIcon="alert"></svg>{{ msg }}</small> }
+    </label>
+
+    <div class="row">
+      <label>
+        Correo electrónico
+        <input type="email" formControlName="email" autocomplete="email" placeholder="tu@correo.com" [attr.aria-invalid]="!!error('email')" />
+        @if (error('email'); as msg) { <small class="field-error"><svg appIcon="alert"></svg>{{ msg }}</small> }
+      </label>
+      <label>
+        <span>Teléfono <span class="optional">(opcional)</span></span>
+        <input type="tel" formControlName="phone" autocomplete="tel" placeholder="300 000 0000" />
+        @if (error('phone'); as msg) { <small class="field-error"><svg appIcon="alert"></svg>{{ msg }}</small> }
+      </label>
+    </div>
+
+    <label>
+      Mensaje
+      <textarea formControlName="message" rows="4" maxlength="3000" placeholder="Cuéntanos en qué podemos ayudarte" [attr.aria-invalid]="!!error('message')"></textarea>
+      @if (error('message'); as msg) { <small class="field-error"><svg appIcon="alert"></svg>{{ msg }}</small> }
+    </label>
+
+    @if (state() === 'error') {
+      <p class="form-error" role="alert"><svg appIcon="alert"></svg>{{ errorMessage() }}</p>
+    }
+
+    <button class="button light" type="submit" [disabled]="state() === 'sending'">
+      @if (state() === 'sending') {
+        <span class="spinner" aria-hidden="true"></span> Enviando…
+      } @else {
+        Enviar mensaje <svg appIcon="arrow"></svg>
+      }
+    </button>
+  </form>
+}

@@ -1,0 +1,154 @@
+<a class="back" routerLink="/admin/secciones"><svg appIcon="chevron-left"></svg> Contenido del sitio</a>
+
+@if (loading()) {
+  <div class="skeleton" aria-busy="true" aria-label="Cargando sección">
+    <span class="adm-skeleton sk-head"></span>
+    <div class="layout">
+      <div class="adm-card fields">
+        <span class="adm-skeleton sk-label"></span>
+        <span class="adm-skeleton sk-input"></span>
+        <span class="adm-skeleton sk-label"></span>
+        <span class="adm-skeleton sk-area"></span>
+      </div>
+      <div class="adm-card side"><span class="adm-skeleton sk-area"></span></div>
+    </div>
+  </div>
+} @else if (loadError()) {
+  <div class="adm-alert" role="alert">
+    <svg appIcon="alert"></svg>
+    <span>{{ loadError() }}</span>
+    <button class="adm-btn ghost small" type="button" (click)="reload()">Reintentar</button>
+  </div>
+} @else if (notFound()) {
+  <div class="adm-card adm-empty">
+    <span class="art"><svg appIcon="help"></svg></span>
+    <b>No encontramos esta sección</b>
+    <span>Puede que la hayan borrado. Vuelve a la lista para ver las que existen.</span>
+    <a class="adm-btn ghost small" routerLink="/admin/secciones">Ver el contenido del sitio</a>
+  </div>
+} @else if (section(); as section) {
+  <header class="adm-page-head">
+    <div class="title">
+      <span class="adm-tile big"><svg [appIcon]="icon(section)"></svg></span>
+      <div>
+        <h1>{{ isSettings() ? 'Ajustes generales' : section.title }}</h1>
+        <p>{{ isSettings() ? 'Menú, pie de página, redes sociales y nombre del sitio.' : description(section) }}</p>
+      </div>
+    </div>
+  </header>
+
+  <form class="layout" (ngSubmit)="save()" novalidate>
+    <div class="adm-card fields">
+      <app-object-fields [obj]="content()" [sectionKey]="section.key" [errors]="errors()" (changed)="markDirty()" />
+      @if (!hasFields()) {
+        <div class="adm-empty">
+          <span class="art"><svg appIcon="layers"></svg></span>
+          <b>Sin campos editables</b>
+          <span>Esta sección no tiene contenido que editar.</span>
+        </div>
+      }
+    </div>
+
+    <aside class="side">
+      <!-- Guardar -->
+      <div class="adm-card block">
+        <div class="status" aria-live="polite">
+          @if (showErrors() && errorCount()) {
+            <p class="adm-alert" role="alert">
+              <svg appIcon="alert"></svg>
+              {{ errorCount() === 1 ? 'Hay 1 campo por revisar.' : 'Hay ' + errorCount() + ' campos por revisar.' }}
+            </p>
+          } @else if (saveState() === 'error' && saveError()) {
+            <p class="adm-alert" role="alert"><svg appIcon="alert"></svg>{{ saveError() }}</p>
+          } @else if (dirty() && saveState() !== 'saving') {
+            <p class="dirty"><span class="dot"></span> Tienes cambios sin guardar</p>
+          } @else if (saveState() === 'saved') {
+            <p class="saved"><svg appIcon="check"></svg> Guardado · {{ savedAt() }}</p>
+          } @else {
+            <p class="meta">Sin cambios · última edición {{ timeAgo(section.updated_at) }}</p>
+          }
+        </div>
+
+        <button class="adm-btn primary save-btn" type="submit" [disabled]="!dirty() || saveState() === 'saving'">
+          {{ saveState() === 'saving' ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+
+        @if (dirty() && saveState() !== 'saving') {
+          @if (confirmingDiscard()) {
+            <div class="confirm" role="group" aria-label="Confirmar descarte">
+              <span>¿Descartar los cambios sin guardar?</span>
+              <div>
+                <button class="adm-btn danger solid small" type="button" (click)="discard()">Descartar</button>
+                <button class="adm-btn quiet small" type="button" (click)="confirmingDiscard.set(false)">Cancelar</button>
+              </div>
+            </div>
+          } @else {
+            <button class="adm-btn quiet" type="button" (click)="confirmingDiscard.set(true)">Descartar cambios</button>
+          }
+        }
+      </div>
+
+      <!-- Dónde aparece -->
+      @if (!isSettings()) {
+        <div class="adm-card block">
+          <h2>Dónde aparece</h2>
+
+          <label class="adm-field">
+            <span>Nombre corto</span>
+            <input class="adm-input" name="title" maxlength="60" [ngModel]="title()" (ngModelChange)="title.set($event); markDirty()" />
+            <small class="hint">Se usa en el menú y en este panel.</small>
+          </label>
+
+          <label class="adm-switch">
+            <input type="checkbox" name="visible" [checked]="visible()" [disabled]="visibleBusy()" (change)="toggleVisible($any($event.target).checked)" />
+            Mostrar en la página
+          </label>
+
+          <label class="adm-switch">
+            <input type="checkbox" name="inMenu" [checked]="inMenu()" [disabled]="menuBusy()" (change)="toggleMenu($any($event.target).checked)" />
+            Mostrar en el menú
+          </label>
+          <small class="hint">Los interruptores se guardan al instante.</small>
+
+          @if (visible()) {
+            <a class="adm-btn ghost" [routerLink]="siteLink().path" [fragment]="siteLink().fragment" target="_blank" rel="noopener">
+              Ver en la página <svg appIcon="arrow-up-right"></svg>
+            </a>
+          } @else {
+            <p class="note">Está oculta: nadie la ve en la página hasta que la muestres.</p>
+          }
+        </div>
+      }
+
+      <!-- Borrar -->
+      @if (deletable()) {
+        <div class="danger-zone">
+          @if (confirmingDelete()) {
+            <div class="confirm" role="group" aria-label="Confirmar borrado">
+              <span>¿Borrar este módulo? Desaparece de la página y del menú.</span>
+              <div>
+                <button class="adm-btn danger solid small" type="button" [disabled]="deleting()" (click)="deleteModule()">
+                  {{ deleting() ? 'Borrando…' : 'Sí, borrar' }}
+                </button>
+                <button class="adm-btn quiet small" type="button" (click)="confirmingDelete.set(false)">Cancelar</button>
+              </div>
+            </div>
+          } @else {
+            <button class="adm-btn quiet delete" type="button" (click)="confirmingDelete.set(true)">
+              <svg appIcon="trash"></svg> Borrar este módulo
+            </button>
+          }
+        </div>
+      }
+    </aside>
+
+    @if (dirty() || saveState() === 'saving') {
+      <div class="save-bar">
+        <span>{{ showErrors() && errorCount() ? 'Revisa los campos marcados' : 'Tienes cambios sin guardar' }}</span>
+        <button class="adm-btn primary small" type="submit" [disabled]="saveState() === 'saving'">
+          {{ saveState() === 'saving' ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    }
+  </form>
+}

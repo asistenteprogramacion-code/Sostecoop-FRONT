@@ -1,0 +1,363 @@
+/* Estilos compartidos del panel de administración (/admin). */
+
+.adm {
+  --adm-bg: #f4f7f6;
+  --adm-surface: #fff;
+  --adm-danger: #c23a3a;
+  --adm-danger-soft: #fdeeee;
+  --adm-ok-soft: #e6f5ef;
+  --adm-warn: #a8660c;
+  min-height: 100dvh;
+  background: var(--adm-bg);
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.adm h1,
+.adm h2,
+.adm h3 {
+  font-family: var(--font-display);
+  color: var(--navy);
+}
+
+/* Encabezado de página */
+.adm-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.adm-page-head h1 {
+  font-size: clamp(26px, 3vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.adm-page-head p {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: 15px;
+  max-width: 46em;
+}
+
+/* Tarjetas */
+.adm-card {
+  background: var(--adm-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm), 0 0 0 1px #0b2c430d;
+  padding: 22px;
+}
+
+/* Botones */
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+  background: var(--navy);
+  color: white;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.15s var(--ease-out),
+    box-shadow 0.2s;
+}
+
+.adm-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.adm-btn:hover:not(:disabled) {
+  background: var(--navy-2);
+}
+
+.adm-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.adm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.adm-btn.primary {
+  background: var(--green);
+  box-shadow: 0 6px 16px -8px #11966fb3;
+}
+
+.adm-btn.primary:hover:not(:disabled) {
+  background: var(--green-strong);
+}
+
+.adm-btn.ghost {
+  background: white;
+  color: var(--navy);
+  border-color: #d3dfe0;
+}
+
+.adm-btn.ghost:hover:not(:disabled) {
+  border-color: var(--navy);
+  background: white;
+}
+
+.adm-btn.quiet {
+  background: transparent;
+  color: var(--muted);
+}
+
+.adm-btn.quiet:hover:not(:disabled) {
+  background: #e8efee;
+  color: var(--navy);
+}
+
+.adm-btn.danger {
+  background: white;
+  color: var(--adm-danger);
+  border-color: #efcaca;
+}
+
+.adm-btn.danger:hover:not(:disabled) {
+  background: var(--adm-danger-soft);
+  border-color: var(--adm-danger);
+}
+
+.adm-btn.danger.solid {
+  background: var(--adm-danger);
+  border-color: var(--adm-danger);
+  color: white;
+}
+
+.adm-btn.danger.solid:hover:not(:disabled) {
+  background: #a82f2f;
+}
+
+.adm-btn.small {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.adm-btn.icon {
+  min-height: 34px;
+  width: 34px;
+  padding: 0;
+}
+
+/* Campos */
+.adm-field {
+  display: grid;
+  gap: 7px;
+}
+
+.adm-field > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #35505e;
+}
+
+.adm-input {
+  width: 100%;
+  font: 400 15px var(--font-body);
+  color: var(--ink);
+  background: white;
+  border: 1px solid #d3dfe0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.adm-input:hover {
+  border-color: #b7c8cb;
+}
+
+textarea.adm-input {
+  resize: vertical;
+  min-height: 92px;
+  line-height: 1.55;
+}
+
+.adm-input:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px #11966f1f;
+}
+
+.adm :is(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* Interruptor visible/oculto */
+.adm-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+}
+
+.adm-switch input {
+  appearance: none;
+  width: 40px;
+  height: 23px;
+  border-radius: 99px;
+  background: #cfdcdc;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.25s;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.adm-switch input::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px #0b2c4340;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.adm-switch input:checked {
+  background: var(--green);
+}
+
+.adm-switch input:checked::after {
+  transform: translateX(17px);
+}
+
+.adm-switch input:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Insignias y avisos */
+.adm-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 7px;
+  background: var(--green);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-badge.muted {
+  background: #e3ebea;
+  color: var(--muted);
+}
+
+.adm-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--adm-danger-soft);
+  color: #8f2a2a;
+}
+
+.adm-alert svg {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.adm-alert.ok {
+  background: var(--adm-ok-soft);
+  color: #0b6b4f;
+}
+
+/* Estado vacío */
+.adm-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--muted);
+  padding: 56px 20px;
+}
+
+.adm-empty .art {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--mint);
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.adm-empty .art svg {
+  width: 28px;
+  height: 28px;
+}
+
+.adm-empty b {
+  font: 600 18px var(--font-display);
+  color: var(--navy);
+}
+
+/* Esqueletos de carga */
+.adm-skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e7eeed 0%, #f3f7f6 40%, #e7eeed 80%) 0 0 / 300% 100%;
+  animation: adm-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes adm-shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* Ícono de sección en cuadrado redondeado */
+.adm-tile {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--mint);
+  color: var(--green);
+}
+
+.adm-tile svg {
+  width: 20px;
+  height: 20px;
+}
+
+.adm-tile.muted {
+  background: #e8eeee;
+  color: #8a9ca5;
+}

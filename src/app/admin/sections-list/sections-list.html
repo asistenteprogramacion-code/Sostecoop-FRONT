@@ -1,0 +1,112 @@
+<header class="adm-page-head">
+  <div>
+    <h1>Contenido del sitio</h1>
+    <p>Toca una sección para editar sus textos e imágenes. Los cambios se ven al instante en la página.</p>
+  </div>
+  <a class="adm-btn primary" routerLink="nuevo"><svg appIcon="plus"></svg> Nuevo módulo</a>
+</header>
+
+@if (error()) {
+  <div class="adm-alert" role="alert">
+    <svg appIcon="alert"></svg>
+    <span>{{ error() }}</span>
+    <button class="adm-btn ghost small" type="button" (click)="load()">Reintentar</button>
+  </div>
+}
+
+<!-- Fila reutilizable de una sección -->
+<ng-template #rowContent let-section let-fixed="fixed">
+  <span class="adm-tile" [class.muted]="!section.visible"><svg [appIcon]="icon(section)"></svg></span>
+
+  <a class="info" [routerLink]="[section.key]">
+    <b>
+      <span class="name">{{ section.title }}</span>
+      @if (!section.visible) { <span class="flag">Oculta</span> }
+      @if (inMenu(section.key)) { <span class="flag menu">En el menú</span> }
+      @if (isModule(section.key)) { <span class="flag module">Módulo</span> }
+    </b>
+    <small>{{ description(section) }}</small>
+    @if (fixed) { <small class="meta"><svg appIcon="pin"></svg> {{ fixed }}</small> }
+  </a>
+
+  <label class="adm-switch show">
+    <input
+      type="checkbox"
+      [checked]="section.visible"
+      [disabled]="isBusy(section.key)"
+      (change)="toggleVisible(section, $any($event.target).checked)"
+    />
+    <span>{{ section.visible ? 'Visible' : 'Oculta' }}</span>
+  </label>
+
+  <a class="adm-btn ghost small edit" [routerLink]="[section.key]" [attr.aria-label]="'Editar ' + section.title">
+    Editar <svg appIcon="arrow"></svg>
+  </a>
+</ng-template>
+
+@if (loading() && !settings()) {
+  <ol class="list" aria-busy="true" aria-label="Cargando secciones">
+    @for (s of skeletons; track s) {
+      <li class="row skeleton-row">
+        <span class="adm-skeleton sk-tile"></span>
+        <span class="lines">
+          <span class="adm-skeleton sk-title"></span>
+          <span class="adm-skeleton sk-text"></span>
+        </span>
+      </li>
+    }
+  </ol>
+} @else if (!error()) {
+  @if (settings(); as settings) {
+    <a class="settings-card" [routerLink]="[settings.key]">
+      <span class="adm-tile"><svg appIcon="sliders"></svg></span>
+      <span class="info">
+        <b>Ajustes generales</b>
+        <small>Menú, pie de página, redes sociales y nombre del sitio</small>
+      </span>
+      <span class="adm-btn ghost small">Editar <svg appIcon="arrow"></svg></span>
+    </a>
+  }
+
+  <div class="group-head">
+    <h2>Página principal</h2>
+    <p>
+      Así está ordenada la página, de arriba hacia abajo. Arrastra
+      <svg class="inline" appIcon="grip"></svg> los bloques del medio para cambiar su orden.
+      @if (hiddenCount()) { <b>{{ hiddenCount() }} {{ hiddenCount() === 1 ? 'oculta' : 'ocultas' }}.</b> }
+    </p>
+  </div>
+
+  <div class="page">
+    @if (top(); as top) {
+      <div class="row fixed" [class.hidden]="!top.visible" [class.busy]="isBusy(top.key)">
+        <span class="handle placeholder-handle" aria-hidden="true"></span>
+        <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: top, fixed: 'Siempre arriba' }" />
+      </div>
+    }
+
+    <ol class="list" cdkDropList [cdkDropListData]="middle()" (cdkDropListDropped)="drop($event)" aria-label="Bloques de la página">
+      @for (section of middle(); track section.key) {
+        <li class="row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="isBusy(section.key)" [class.hidden]="!section.visible" [class.busy]="isBusy(section.key)">
+          <div class="placeholder" *cdkDragPlaceholder></div>
+          <button class="handle" type="button" cdkDragHandle [attr.aria-label]="'Arrastrar ' + section.title + ' para cambiar su orden'" title="Arrastrar para ordenar">
+            <svg appIcon="grip"></svg>
+          </button>
+          <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: section, fixed: '' }" />
+        </li>
+      } @empty {
+        <li class="empty-middle">
+          Aún no hay bloques entre la portada y contacto.
+          <a routerLink="nuevo">Crea un módulo</a> para agregar uno.
+        </li>
+      }
+    </ol>
+
+    @if (bottom(); as bottom) {
+      <div class="row fixed" [class.hidden]="!bottom.visible" [class.busy]="isBusy(bottom.key)">
+        <span class="handle placeholder-handle" aria-hidden="true"></span>
+        <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: bottom, fixed: 'Siempre al final' }" />
+      </div>
+    }
+  </div>
+}
