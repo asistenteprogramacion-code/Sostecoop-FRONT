@@ -99,18 +99,22 @@
             <small class="hint">Se usa en el menú y en este panel.</small>
           </label>
 
-          <label class="adm-switch">
-            <input type="checkbox" name="visible" [checked]="visible()" [disabled]="visibleBusy()" (change)="toggleVisible($any($event.target).checked)" />
-            Mostrar en la página
-          </label>
+          @if (deletable()) {
+            <label class="adm-switch">
+              <input type="checkbox" name="visible" [checked]="visible()" [disabled]="visibleBusy()" (change)="toggleVisible($any($event.target).checked)" />
+              Mostrar en la página
+            </label>
+          } @else {
+            <p class="note">Esta sección es obligatoria y siempre permanece visible.</p>
+          }
 
           <label class="adm-switch">
-            <input type="checkbox" name="inMenu" [checked]="inMenu()" [disabled]="menuBusy()" (change)="toggleMenu($any($event.target).checked)" />
-            Mostrar en el menú
+            <input type="checkbox" name="inMenu" [checked]="inMenu() || menuLinkRequired()" [disabled]="menuBusy() || menuLinkRequired()" (change)="toggleMenu($any($event.target).checked)" />
+            {{ menuLinkRequired() ? 'Siempre en el menú' : 'Mostrar en el menú' }}
           </label>
           <small class="hint">Los interruptores se guardan al instante.</small>
 
-          @if (visible()) {
+          @if (visible() || !deletable()) {
             <a class="adm-btn ghost" [routerLink]="siteLink().path" [fragment]="siteLink().fragment" target="_blank" rel="noopener">
               Ver en la página <svg appIcon="arrow-up-right"></svg>
             </a>
@@ -123,7 +127,9 @@
       <!-- Borrar -->
       @if (deletable()) {
         <div class="danger-zone">
-          @if (confirmingDelete()) {
+          @if (inMenu()) {
+            <p class="note">Este módulo tiene un enlace en el menú. Quítalo primero en “Mostrar en el menú”; luego podrás borrarlo.</p>
+          } @else if (confirmingDelete()) {
             <div class="confirm" role="group" aria-label="Confirmar borrado">
               <span>¿Borrar este módulo? Desaparece de la página y del menú.</span>
               <div>

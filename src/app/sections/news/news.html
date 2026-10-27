@@ -5,6 +5,14 @@
         <span class="section-label">Actualidad</span>
         <h2 class="section-title">{{ section.title }}</h2>
       </div>
+      <div class="news-heading-action">
+        <p>Conoce nuestras novedades, iniciativas y consejos para crecer en comunidad.</p>
+        <a class="button secondary" routerLink="/noticias">
+          Ver todas las noticias
+          @if (total() > 3) { <span class="count num">{{ total() }}</span> }
+          <svg appIcon="arrow"></svg>
+        </a>
+      </div>
     </div>
 
     @if (news().length) {
@@ -30,12 +38,5 @@
       <p class="empty">Pronto publicaremos novedades aquí.</p>
     }
 
-    <div class="news-footer" appReveal>
-      <a class="button secondary" routerLink="/noticias">
-        Ver todas las noticias
-        @if (total() > 3) { <span class="count num">{{ total() }}</span> }
-        <svg appIcon="arrow"></svg>
-      </a>
-    </div>
   </section>
 }

@@ -1,6 +1,7 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../shared/icon';
+import { REQUIRED_MENU_ANCHORS } from '../../core/menu-defaults';
 import {
   addsAtTop,
   fieldHint,
@@ -77,6 +78,24 @@ export class ObjectFields {
 
   protected isObj(value: unknown): boolean {
     return !!value && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  protected isRequiredMenuItem(key: string, item: unknown): boolean {
+    return (
+      this.sectionKey() === 'settings' &&
+      key === 'menu' &&
+      this.isObj(item) &&
+      REQUIRED_MENU_ANCHORS.has(String((item as Obj)['anchor']))
+    );
+  }
+
+  protected isRequiredMenuAnchor(key: string): boolean {
+    return (
+      this.sectionKey() === 'settings' &&
+      key === 'anchor' &&
+      this.path().startsWith('menu.') &&
+      REQUIRED_MENU_ANCHORS.has(String(this.obj()['anchor']))
+    );
   }
 
   protected error(key: string): string {
@@ -169,6 +188,7 @@ export class ObjectFields {
   }
 
   protected remove(key: string, index: number): void {
+    if (this.isRequiredMenuItem(key, this.list(key)[index])) return;
     this.list(key).splice(index, 1);
     this.expanded.update((set) => new Set([...set].filter((id) => id !== `${key}:${index}`)));
     this.shiftExpanded(key, index + 1, -1);

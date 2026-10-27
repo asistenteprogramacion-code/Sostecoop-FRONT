@@ -18,10 +18,20 @@
   max-width: 12em;
 }
 
-.news-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 42px;
+.news-heading-action {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  width: min(100%, 370px);
+  margin: 0 4.5% 4px auto;
+}
+
+.news-heading-action p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
 }
 
 .count {
@@ -213,6 +223,12 @@ article:hover .more svg {
   .section-heading {
     flex-direction: column;
     align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 36px;
+  }
+
+  .news-heading-action {
+    margin: 0;
   }
 }
 
@@ -221,8 +237,8 @@ article:hover .more svg {
     display: block;
   }
 
-  .news-footer {
-    margin-top: 30px;
+  .news-heading-action {
+    gap: 12px;
   }
 
   article,

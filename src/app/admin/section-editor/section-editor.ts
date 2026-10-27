@@ -12,7 +12,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { anchorOf, slugify } from '../../core/modules';
+import { anchorOf, CORE_KEYS, slugify } from '../../core/modules';
+import { REQUIRED_MENU_ANCHORS, withRequiredMenuItems } from '../../core/menu-defaults';
 import { Section } from '../../core/site-content';
 import { Icon } from '../../shared/icon';
 import { AdminApi, apiErrorMessage, menuOf } from '../admin-api';
@@ -83,6 +84,10 @@ export class SectionEditor {
   protected readonly visibleBusy = signal(false);
   /** Ajustes generales no se muestran ni ocultan: solo se editan. */
   protected readonly isSettings = computed(() => this.section()?.key === 'settings');
+  protected readonly menuLinkRequired = computed(() => {
+    const key = this.section()?.key;
+    return !!key && REQUIRED_MENU_ANCHORS.has('#' + anchorOf(key));
+  });
 
   protected readonly deletable = computed(() => isModule(this.section()?.key ?? 'settings'));
   protected readonly confirmingDelete = signal(false);
@@ -142,7 +147,7 @@ export class SectionEditor {
       this.savedAt.set(new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }));
       this.saveState.set('saved');
       this.toast.ok(
-        updated.visible || this.isSettings()
+        updated.visible || this.isSettings() || !this.deletable()
           ? 'Cambios guardados. Ya se ven en la página.'
           : 'Cambios guardados. La sección sigue oculta.',
       );
@@ -178,6 +183,7 @@ export class SectionEditor {
   protected async toggleVisible(value: boolean): Promise<void> {
     const section = this.section();
     if (!section || this.visibleBusy()) return;
+    if (!value && CORE_KEYS.has(section.key)) return;
     this.visibleBusy.set(true);
     try {
       const updated = await this.api.updateSection(section.key, { visible: value });
@@ -195,6 +201,7 @@ export class SectionEditor {
   protected async toggleMenu(value: boolean): Promise<void> {
     const section = this.section();
     if (!section || this.menuBusy()) return;
+    if (!value && this.menuLinkRequired()) return;
     this.menuBusy.set(true);
     try {
       await this.api.setInMenu('#' + anchorOf(section.key), this.title().trim() || section.title, value);
@@ -209,7 +216,11 @@ export class SectionEditor {
 
   protected async deleteModule(): Promise<void> {
     const section = this.section();
-    if (!section || this.deleting()) return;
+    if (!section || !isModule(section.key) || this.deleting()) return;
+    if (this.inMenu()) {
+      this.toast.error('Primero quita este enlace del menú; después podrás borrar el módulo.');
+      return;
+    }
     this.deleting.set(true);
     try {
       await this.api.deleteSection(section.key);
@@ -222,9 +233,6 @@ export class SectionEditor {
           : apiErrorMessage(err, 'No se pudo borrar el módulo.'),
       );
       return;
-    }
-    if (this.inMenu()) {
-      await this.api.setInMenu('#' + anchorOf(section.key), section.title, false).catch(() => undefined);
     }
     this.dirty.set(false);
     this.toast.ok(`Módulo «${section.title}» borrado.`);
@@ -261,7 +269,9 @@ export class SectionEditor {
 
   private reset(section: Section): void {
     this.section.set(section);
-    this.content.set(structuredClone(section.content ?? {}));
+    const content = structuredClone(section.content ?? {});
+    if (section.key === 'settings') content['menu'] = withRequiredMenuItems(content['menu']);
+    this.content.set(content);
     this.title.set(section.title);
     this.visible.set(section.visible);
     this.dirty.set(false);

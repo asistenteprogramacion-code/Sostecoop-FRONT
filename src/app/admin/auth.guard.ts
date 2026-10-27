@@ -2,10 +2,14 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Auth } from './auth';
 
-/** Sin token, /admin redirige al login. */
-export const authGuard: CanActivateFn = () =>
-  inject(Auth).loggedIn() || inject(Router).parseUrl('/admin/login');
+/** Sin una cookie válida, /admin redirige al login. */
+export const authGuard: CanActivateFn = async () => {
+  const auth = inject(Auth);
+  return (await auth.checkSession()) || inject(Router).parseUrl('/admin/login');
+};
 
-/** Con sesión abierta, el login lleva directo al panel. */
-export const guestGuard: CanActivateFn = () =>
-  !inject(Auth).loggedIn() || inject(Router).parseUrl('/admin');
+/** Con cookie de sesión válida, el login lleva directo al panel. */
+export const guestGuard: CanActivateFn = async () => {
+  const auth = inject(Auth);
+  return (await auth.checkSession()) ? inject(Router).parseUrl('/admin') : true;
+};

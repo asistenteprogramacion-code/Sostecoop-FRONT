@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../core/api';
+import { anchorOf, CORE_KEYS } from '../core/modules';
+import { withRequiredMenuItems } from '../core/menu-defaults';
 import { Section } from '../core/site-content';
 
 export interface ContactMessage {
@@ -27,7 +29,7 @@ export interface MenuItem {
 /** Enlaces del menú guardados en settings.content.menu. */
 export function menuOf(settings: Section | undefined): MenuItem[] {
   const menu = settings?.content['menu'];
-  return Array.isArray(menu) ? (menu as MenuItem[]).filter((i) => i && typeof i.anchor === 'string') : [];
+  return withRequiredMenuItems(menu);
 }
 
 const ADMIN = `${API_URL}/api/admin`;
@@ -44,7 +46,17 @@ export class AdminApi {
   }
 
   updateSection(key: string, patch: SectionPatch): Promise<Section> {
-    return firstValueFrom(this.http.put<Section>(`${ADMIN}/sections/${key}`, patch));
+    if (CORE_KEYS.has(key) && patch.visible === false) {
+      return Promise.reject(new Error('Esta sección es obligatoria y no se puede ocultar.'));
+    }
+    const normalizedPatch =
+      key === 'settings' && patch.content
+        ? {
+            ...patch,
+            content: { ...patch.content, menu: withRequiredMenuItems(patch.content['menu']) },
+          }
+        : patch;
+    return firstValueFrom(this.http.put<Section>(`${ADMIN}/sections/${key}`, normalizedPatch));
   }
 
   /** Crea un módulo nuevo (requiere POST /api/admin/sections en el backend). */
@@ -53,8 +65,16 @@ export class AdminApi {
   }
 
   /** Borra un módulo (requiere DELETE /api/admin/sections/{key} en el backend). */
-  deleteSection(key: string): Promise<void> {
-    return firstValueFrom(this.http.delete<void>(`${ADMIN}/sections/${key}`));
+  async deleteSection(key: string): Promise<void> {
+    if (CORE_KEYS.has(key)) {
+      throw new Error('Esta sección es obligatoria y no se puede borrar.');
+    }
+    const settings = (await this.sections()).find((section) => section.key === 'settings');
+    const anchor = '#' + anchorOf(key);
+    if (menuOf(settings).some((item) => item.anchor === anchor)) {
+      throw new Error('Primero quita este enlace del menú; después podrás borrar el módulo.');
+    }
+    await firstValueFrom(this.http.delete<void>(`${ADMIN}/sections/${key}`));
   }
 
   /**
@@ -103,5 +123,6 @@ export function apiErrorMessage(err: unknown, fallback = 'Ocurrió un error. Int
     if (typeof detail === 'string') return detail;
     if (Array.isArray(detail) && detail[0]?.msg) return detail.map((d) => d.msg).join(' · ');
   }
+  if (err instanceof Error) return err.message;
   return fallback;
 }

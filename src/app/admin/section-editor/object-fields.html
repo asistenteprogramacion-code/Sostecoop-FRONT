@@ -59,7 +59,7 @@
                 <button class="adm-btn quiet icon" type="button" [disabled]="last" (click)="move(key, i, 1)" [attr.aria-label]="'Bajar elemento ' + (i + 1)" title="Bajar">
                   <svg appIcon="move-down"></svg>
                 </button>
-                <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" title="Quitar">
+                <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [disabled]="isRequiredMenuItem(key, item)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" [title]="isRequiredMenuItem(key, item) ? 'Este enlace predeterminado no se puede quitar' : 'Quitar'">
                   <svg appIcon="trash"></svg>
                 </button>
               </div>
@@ -90,6 +90,7 @@
         [label]="label(key)"
         [value]="$any(value) ?? ''"
         [optional]="key === 'cta_anchor'"
+        [locked]="isRequiredMenuAnchor(key)"
         [error]="err"
         (valueChange)="set(key, $event)"
       />

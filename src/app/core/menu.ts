@@ -1,4 +1,5 @@
 import { computed, Signal } from '@angular/core';
+import { DEFAULT_MENU } from './menu-defaults';
 import { SiteContent } from './site-content';
 
 /** Enlace del menú listo para routerLink: ancla de la landing, página interna o externa. */
@@ -15,14 +16,6 @@ interface RawMenuItem {
   anchor?: string;
 }
 
-/** Menú por defecto (el del diseño) mientras carga la API o si settings no trae menú. */
-const DEFAULT_MENU: RawMenuItem[] = [
-  { label: 'Inicio', anchor: '#inicio' },
-  { label: 'Quiénes somos', anchor: '#nosotros' },
-  { label: 'Noticias', anchor: '#noticias' },
-  { label: 'Contáctanos', anchor: '#contacto' },
-];
-
 /** Sección a la que apunta un ancla (#inicio es el hero). */
 function keyOfAnchor(fragment: string): string {
   return fragment === 'inicio' ? 'hero' : fragment;
@@ -37,10 +30,16 @@ export function siteMenu(content: SiteContent): Signal<MenuLink[]> {
   return computed(() => {
     const menu = settings()?.content['menu'];
     const items = Array.isArray(menu) && menu.length ? (menu as RawMenuItem[]) : DEFAULT_MENU;
-    return items
+    const links = items
       .filter((i) => i.label?.trim() && i.anchor?.trim())
       .map((i) => toLink(i.label!.trim(), i.anchor!.trim()))
       .filter((l) => !l.fragment || content.isVisible(keyOfAnchor(l.fragment)));
+    const required = DEFAULT_MENU.map((defaultItem) =>
+      links.find((link) => link.fragment === defaultItem.anchor!.slice(1)) ??
+      toLink(defaultItem.label!, defaultItem.anchor!),
+    );
+    const requiredAnchors = new Set(required.map((link) => link.fragment));
+    return [...required, ...links.filter((link) => !requiredAnchors.has(link.fragment))];
   });
 }
 

@@ -1,4 +1,5 @@
 import { computed, DestroyRef, inject, Injectable, Signal, signal } from '@angular/core';
+import { CORE_KEYS } from './modules';
 import { API_URL } from './api';
 import { openLiveSocket } from './live-socket';
 
@@ -43,9 +44,11 @@ export class SiteContent {
         if (!data?.key) return;
         if (msg.event === 'section_updated') {
           const section = data as Section;
-          this.patch(section.key, section.visible ? section : null);
+          this.patch(section.key, section.visible || CORE_KEYS.has(section.key)
+            ? { ...section, visible: section.visible || CORE_KEYS.has(section.key) }
+            : null);
         } else if (msg.event === 'section_deleted') {
-          this.patch(data.key, null);
+          if (!CORE_KEYS.has(data.key)) this.patch(data.key, null);
         }
       },
     });
@@ -61,7 +64,7 @@ export class SiteContent {
       const all = this.sections();
       if (!all) return defaults;
       const section = all[key];
-      if (!section) return null;
+      if (!section) return CORE_KEYS.has(key) ? defaults : null;
       return { ...defaults, ...withoutEmpty(section.content) } as T;
     });
   }
@@ -77,7 +80,7 @@ export class SiteContent {
   /** Antes de cargar se asume visible para no parpadear. */
   isVisible(key: string): boolean {
     const all = this.sections();
-    return !all || key in all;
+    return CORE_KEYS.has(key) || !all || key in all;
   }
 
   private patch(key: string, section: Section | null): void {
@@ -97,11 +100,12 @@ export class SiteContent {
       this.sections.set(
         Object.fromEntries(
           list
-            .filter((s) => s.visible)
+            .filter((s) => s.visible || CORE_KEYS.has(s.key))
             .map((section) => [
               section.key,
               {
                 ...section,
+                visible: section.visible || CORE_KEYS.has(section.key),
                 title: replaceLegacyName(section.title),
                 content: replaceLegacyNames(section.content) as Record<string, unknown>,
               },

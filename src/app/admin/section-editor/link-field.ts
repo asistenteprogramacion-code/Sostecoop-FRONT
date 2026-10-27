@@ -14,7 +14,7 @@ const CUSTOM = '__otro';
   template: `
     <label class="adm-field" [class.invalid]="error()">
       <span>{{ label() }}</span>
-      <select class="adm-input" (change)="pick($any($event.target).value)" [attr.aria-invalid]="!!error()">
+      <select class="adm-input" [disabled]="locked()" (change)="pick($any($event.target).value)" [attr.aria-invalid]="!!error()">
         @if (optional()) {
           <option value="" [selected]="selected() === ''">Sin enlace</option>
         } @else if (!value()) {
@@ -42,6 +42,7 @@ const CUSTOM = '__otro';
           inputmode="url"
           placeholder="https://"
           [value]="value()"
+          [disabled]="locked()"
           (input)="valueChange.emit($any($event.target).value.trim())"
           [attr.aria-invalid]="!!error()"
         />
@@ -111,6 +112,7 @@ export class LinkField {
   /** Si se puede dejar sin enlace (los botones sí; los enlaces del menú no). */
   readonly optional = input(false);
   readonly error = input('');
+  readonly locked = input(false);
   readonly valueChange = output<string>();
 
   /** El admin eligió escribir un enlace a mano aunque todavía esté vacío. */

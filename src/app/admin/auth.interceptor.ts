@@ -6,17 +6,23 @@ import { Auth } from './auth';
 
 const ADMIN_API = `${API_URL}/api/admin/`;
 
-/** Añade el token a las llamadas de admin y cierra la sesión ante un 401. */
+/** Envía la cookie de sesión en las llamadas de admin y cierra la sesión ante un 401. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(ADMIN_API) || req.url.endsWith('/login')) return next(req);
+  if (!req.url.startsWith(ADMIN_API)) return next(req);
 
   const auth = inject(Auth);
-  const token = auth.token();
-  const authed = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
+  const withCookie = req.clone({ withCredentials: true });
 
-  return next(authed).pipe(
+  return next(withCookie).pipe(
     catchError((err: unknown) => {
-      if (err instanceof HttpErrorResponse && err.status === 401) auth.logout();
+      if (
+        err instanceof HttpErrorResponse &&
+        err.status === 401 &&
+        auth.loggedIn() &&
+        !req.url.endsWith('/logout')
+      ) {
+        void auth.logout();
+      }
       return throwError(() => err);
     }),
   );

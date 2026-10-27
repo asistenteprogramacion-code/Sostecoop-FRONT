@@ -16,12 +16,13 @@
 
 <!-- Fila reutilizable de una sección -->
 <ng-template #rowContent let-section let-fixed="fixed">
-  <span class="adm-tile" [class.muted]="!section.visible"><svg [appIcon]="icon(section)"></svg></span>
+  <span class="adm-tile" [class.muted]="!section.visible && !isProtected(section.key)"><svg [appIcon]="icon(section)"></svg></span>
 
   <a class="info" [routerLink]="[section.key]">
     <b>
       <span class="name">{{ section.title }}</span>
-      @if (!section.visible) { <span class="flag">Oculta</span> }
+      @if (!section.visible && !isProtected(section.key)) { <span class="flag">Oculta</span> }
+      @if (isProtected(section.key)) { <span class="flag">Protegida</span> }
       @if (inMenu(section.key)) { <span class="flag menu">En el menú</span> }
       @if (isModule(section.key)) { <span class="flag module">Módulo</span> }
     </b>
@@ -32,11 +33,11 @@
   <label class="adm-switch show">
     <input
       type="checkbox"
-      [checked]="section.visible"
-      [disabled]="isBusy(section.key)"
+      [checked]="section.visible || isProtected(section.key)"
+      [disabled]="isBusy(section.key) || isProtected(section.key)"
       (change)="toggleVisible(section, $any($event.target).checked)"
     />
-    <span>{{ section.visible ? 'Visible' : 'Oculta' }}</span>
+    <span>{{ isProtected(section.key) ? 'Siempre visible' : section.visible ? 'Visible' : 'Oculta' }}</span>
   </label>
 
   <a class="adm-btn ghost small edit" [routerLink]="[section.key]" [attr.aria-label]="'Editar ' + section.title">
@@ -79,7 +80,7 @@
 
   <div class="page">
     @if (top(); as top) {
-      <div class="row fixed" [class.hidden]="!top.visible" [class.busy]="isBusy(top.key)">
+      <div class="row fixed" [class.hidden]="!top.visible && !isProtected(top.key)" [class.busy]="isBusy(top.key)">
         <span class="handle placeholder-handle" aria-hidden="true"></span>
         <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: top, fixed: 'Siempre arriba' }" />
       </div>
@@ -87,7 +88,7 @@
 
     <ol class="list" cdkDropList [cdkDropListData]="middle()" (cdkDropListDropped)="drop($event)" aria-label="Bloques de la página">
       @for (section of middle(); track section.key) {
-        <li class="row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="isBusy(section.key)" [class.hidden]="!section.visible" [class.busy]="isBusy(section.key)">
+        <li class="row" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="isBusy(section.key)" [class.hidden]="!section.visible && !isProtected(section.key)" [class.busy]="isBusy(section.key)">
           <div class="placeholder" *cdkDragPlaceholder></div>
           <button class="handle" type="button" cdkDragHandle [attr.aria-label]="'Arrastrar ' + section.title + ' para cambiar su orden'" title="Arrastrar para ordenar">
             <svg appIcon="grip"></svg>
@@ -103,7 +104,7 @@
     </ol>
 
     @if (bottom(); as bottom) {
-      <div class="row fixed" [class.hidden]="!bottom.visible" [class.busy]="isBusy(bottom.key)">
+      <div class="row fixed" [class.hidden]="!bottom.visible && !isProtected(bottom.key)" [class.busy]="isBusy(bottom.key)">
         <span class="handle placeholder-handle" aria-hidden="true"></span>
         <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: bottom, fixed: 'Siempre al final' }" />
       </div>

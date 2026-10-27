@@ -53,12 +53,25 @@ export class Landing {
    * Mientras carga la API se muestran las del diseño.
    */
   protected readonly middle = computed<{ key: string; section?: Section }[]>(() =>
-    this.content.loaded()
-      ? this.content
-          .list()
-          .filter((s) => !FIXED_KEYS.has(s.key))
-          .map((s) => ({ key: s.key, section: s }))
-      : [{ key: 'nosotros' }, { key: 'noticias' }],
+    {
+      if (!this.content.loaded()) return [{ key: 'nosotros' }, { key: 'noticias' }];
+
+      const sections = this.content.list().filter((s) => !FIXED_KEYS.has(s.key));
+      const present = new Set(sections.map((section) => section.key));
+      const required = (['nosotros', 'noticias'] as const)
+        .filter((key) => !present.has(key))
+        .map((key) => ({
+          key,
+          section: undefined as Section | undefined,
+          position: key === 'nosotros' ? 2 : 3,
+        }));
+      return [
+        ...required,
+        ...sections.map((section) => ({ key: section.key, section, position: section.position })),
+      ]
+        .sort((a, b) => a.position - b.position)
+        .map(({ key, section }) => ({ key, section }));
+    },
   );
 
   constructor() {

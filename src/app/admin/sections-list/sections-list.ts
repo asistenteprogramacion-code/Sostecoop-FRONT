@@ -2,7 +2,7 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDropList, m
 import { Component, computed, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { anchorOf } from '../../core/modules';
+import { anchorOf, CORE_KEYS } from '../../core/modules';
 import { Section } from '../../core/site-content';
 import { Icon } from '../../shared/icon';
 import { AdminApi, apiErrorMessage, menuOf } from '../admin-api';
@@ -49,6 +49,7 @@ export class SectionsList {
   protected readonly icon = sectionIcon;
   protected readonly description = sectionDescription;
   protected readonly isModule = isModule;
+  protected readonly isProtected = (key: string) => CORE_KEYS.has(key);
   protected readonly timeAgo = timeAgo;
   protected readonly skeletons = [1, 2, 3, 4, 5];
 
@@ -78,6 +79,7 @@ export class SectionsList {
   }
 
   protected async toggleVisible(section: Section, visible: boolean): Promise<void> {
+    if (this.isProtected(section.key)) return;
     await this.save([section.key], async () => {
       const updated = await this.api.updateSection(section.key, { visible });
       this.replace(updated);

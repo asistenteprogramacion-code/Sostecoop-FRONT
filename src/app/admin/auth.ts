@@ -4,50 +4,50 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../core/api';
 
-const TOKEN_KEY = 'sostecoop-admin-token';
-const LEGACY_TOKEN_KEY = 'fondofuturo-admin-token';
+const ADMIN_API = `${API_URL}/api/admin`;
+type SessionState = 'unknown' | 'authenticated' | 'anonymous';
 
-/** Sesión del administrador. El token dura 8 h; un 401 la cierra (ver authInterceptor). */
+/** Estado de sesión del administrador. La credencial vive en una cookie HttpOnly del backend. */
 @Injectable({ providedIn: 'root' })
 export class Auth {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  readonly token = signal<string | null>(readToken());
-  readonly loggedIn = computed(() => !!this.token());
+  private readonly session = signal<SessionState>('unknown');
+  readonly loggedIn = computed(() => this.session() === 'authenticated');
+  private sessionCheck: Promise<boolean> | null = null;
 
   async login(email: string, password: string): Promise<void> {
-    const res = await firstValueFrom(
-      this.http.post<{ access_token: string }>(`${API_URL}/api/admin/login`, { email, password }),
-    );
-    this.token.set(res.access_token);
-    try {
-      localStorage.setItem(TOKEN_KEY, res.access_token);
-    } catch {
-      // Sin almacenamiento la sesión dura lo que la pestaña.
-    }
+    await firstValueFrom(this.http.post<void>(`${ADMIN_API}/login`, { email, password }));
+    this.session.set('authenticated');
   }
 
-  logout(): void {
-    this.token.set(null);
-    try {
-      localStorage.removeItem(TOKEN_KEY);
-    } catch {
-      // nada que limpiar
-    }
-    this.router.navigateByUrl('/admin/login');
-  }
-}
+  /** Comprueba con el backend si el navegador conserva una cookie de sesión válida. */
+  checkSession(): Promise<boolean> {
+    if (this.session() !== 'unknown') return Promise.resolve(this.loggedIn());
+    if (this.sessionCheck) return this.sessionCheck;
 
-function readToken(): string | null {
-  try {
-    const token = localStorage.getItem(TOKEN_KEY) ?? localStorage.getItem(LEGACY_TOKEN_KEY);
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
-      localStorage.removeItem(LEGACY_TOKEN_KEY);
+    this.sessionCheck = firstValueFrom(this.http.get(`${ADMIN_API}/me`))
+      .then(() => {
+        this.session.set('authenticated');
+        return true;
+      })
+      .catch(() => {
+        this.session.set('anonymous');
+        return false;
+      })
+      .finally(() => (this.sessionCheck = null));
+    return this.sessionCheck;
+  }
+
+  async logout(): Promise<void> {
+    // Se marca primero como anónima para que un 401 del endpoint logout no lo repita.
+    this.session.set('anonymous');
+    try {
+      await firstValueFrom(this.http.post<void>(`${ADMIN_API}/logout`, {}));
+    } catch {
+      // La sesión queda cerrada también en el frontend si no hay conexión con el servidor.
     }
-    return token;
-  } catch {
-    return null;
+    await this.router.navigateByUrl('/admin/login');
   }
 }
