@@ -24,27 +24,27 @@ npm ci
 
 Este repositorio contiene solo el frontend; para cargar contenido, iniciar sesión y guardar cambios también se necesita el backend de Sostecoop. El backend debe estar iniciado antes de probar esas funciones.
 
-En desarrollo, las rutas `/api` y `/uploads` se reenvían mediante [`proxy.conf.json`](proxy.conf.json). En este checkout, el proxy está configurado para la API disponible en `http://192.168.12.95:8000`. Al clonar el proyecto, revisa esa dirección y usa la dirección IP o el dominio donde realmente esté ejecutándose tu backend. Si ejecutas el backend en el mismo equipo, normalmente será `http://localhost:8000`.
+En desarrollo, las rutas `/api` y `/uploads` se reenvían mediante [`proxy.conf.json`](proxy.conf.json). Para trabajar localmente, configura el proxy con `http://localhost:8000`, donde normalmente se ejecuta el backend.
 
 Si ejecutas el backend en otro equipo o puerto, cambia `target` en las dos entradas del archivo `proxy.conf.json`:
 
 ```json
 {
   "/api": {
-    "target": "http://192.168.12.95:8000",
+    "target": "http://localhost:8000",
     "secure": false,
     "changeOrigin": true,
     "ws": true
   },
   "/uploads": {
-    "target": "http://192.168.12.95:8000",
+    "target": "http://localhost:8000",
     "secure": false,
     "changeOrigin": true
   }
 }
 ```
 
-Por ejemplo, si la API está en otro equipo, reemplaza `localhost` por la dirección IP o el dominio de ese equipo. Conserva el protocolo y puerto correctos. Reinicia `npm start` después de modificar el proxy.
+Si tu backend usa otro puerto, actualiza el destino en ambas entradas. Reinicia `npm start` después de modificar el proxy.
 
 El backend debe permitir el origen del frontend (`http://localhost:3000`) en su configuración CORS. Para producción, usa HTTPS y configura frontend y API bajo el mismo sitio para que el navegador pueda enviar la cookie de sesión.
 
@@ -54,7 +54,7 @@ El backend debe permitir el origen del frontend (`http://localhost:3000`) en su 
 npm start
 ```
 
-Abre [http://localhost:3000](http://localhost:3000). El servidor escucha en todas las interfaces de red para permitir acceso desde otros dispositivos de la misma red. Si accedes desde otro dispositivo, agrega también el origen usado allí (por ejemplo, `http://192.168.1.20:3000`) a la configuración CORS del backend. Angular recarga la aplicación al guardar cambios.
+Abre [http://localhost:3000](http://localhost:3000). Angular recarga la aplicación al guardar cambios.
 
 El sitio público se muestra en `/`. El acceso al panel está en `/admin/login`; el usuario y la contraseña se configuran en el backend, no en este repositorio.
 
