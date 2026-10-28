@@ -130,7 +130,7 @@ nav a.active {
   }
 
   .nav-cta {
-    padding: 11px 14px;
+    display: none;
   }
 
   /* Menú desplegable en móvil y tablet */
@@ -175,21 +175,5 @@ nav a.active {
     box-shadow: none;
     background: var(--mint);
     color: var(--green-strong);
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-cta span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-  }
-
-  .nav-cta {
-    width: 44px;
-    height: 44px;
-    padding: 0;
   }
 }
