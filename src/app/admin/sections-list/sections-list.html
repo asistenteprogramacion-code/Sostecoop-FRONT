@@ -30,15 +30,17 @@
     @if (fixed) { <small class="meta"><svg appIcon="pin"></svg> {{ fixed }}</small> }
   </a>
 
-  <label class="adm-switch show">
-    <input
-      type="checkbox"
-      [checked]="section.visible || isProtected(section.key)"
-      [disabled]="isBusy(section.key) || isProtected(section.key)"
-      (change)="toggleVisible(section, $any($event.target).checked)"
-    />
-    <span>{{ isProtected(section.key) ? 'Siempre visible' : section.visible ? 'Visible' : 'Oculta' }}</span>
-  </label>
+  @if (!isProtected(section.key)) {
+    <label class="adm-switch show">
+      <input
+        type="checkbox"
+        [checked]="section.visible"
+        [disabled]="isBusy(section.key)"
+        (change)="toggleVisible(section, $any($event.target).checked)"
+      />
+      <span>{{ section.visible ? 'Visible' : 'Oculta' }}</span>
+    </label>
+  }
 
   <a class="adm-btn ghost small edit" [routerLink]="[section.key]" [attr.aria-label]="'Editar ' + section.title">
     Editar <svg appIcon="arrow"></svg>

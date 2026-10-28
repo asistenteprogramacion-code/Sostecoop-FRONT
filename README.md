@@ -24,20 +24,20 @@ npm ci
 
 Este repositorio contiene solo el frontend; para cargar contenido, iniciar sesión y guardar cambios también se necesita el backend de Sostecoop. El backend debe estar iniciado antes de probar esas funciones.
 
-En desarrollo, las rutas `/api` y `/uploads` se reenvían mediante [`proxy.conf.json`](proxy.conf.json). Por defecto el proxy espera que la API esté en `http://localhost:8000`, que es el puerto local usado por FastAPI.
+En desarrollo, las rutas `/api` y `/uploads` se reenvían mediante [`proxy.conf.json`](proxy.conf.json). En este checkout, el proxy está configurado para la API disponible en `http://192.168.12.95:8000`. Al clonar el proyecto, revisa esa dirección y usa la dirección IP o el dominio donde realmente esté ejecutándose tu backend. Si ejecutas el backend en el mismo equipo, normalmente será `http://localhost:8000`.
 
 Si ejecutas el backend en otro equipo o puerto, cambia `target` en las dos entradas del archivo `proxy.conf.json`:
 
 ```json
 {
   "/api": {
-    "target": "http://localhost:8000",
+    "target": "http://192.168.12.95:8000",
     "secure": false,
     "changeOrigin": true,
     "ws": true
   },
   "/uploads": {
-    "target": "http://localhost:8000",
+    "target": "http://192.168.12.95:8000",
     "secure": false,
     "changeOrigin": true
   }
