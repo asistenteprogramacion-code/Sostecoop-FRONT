@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './admin/auth.guard';
+import { authGuard } from './admin/auth.guard';
 import { Landing } from './pages/landing';
 
 export const routes: Routes = [
@@ -15,7 +15,6 @@ export const routes: Routes = [
   },
   {
     path: 'admin/login',
-    canActivate: [guestGuard],
     loadComponent: () => import('./admin/login/login').then((m) => m.Login),
     title: 'Ingresar · Panel Sostecoop',
   },
