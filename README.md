@@ -10,53 +10,83 @@ Frontend público y panel de administración de Sostecoop Cooperativa. Está con
 
 Angular 21 requiere versiones compatibles de Node.js, TypeScript y RxJS. Consulta la [tabla oficial de compatibilidad de Angular](https://angular.dev/reference/versions).
 
-## Descargar e instalar
+## Arrancar desde la terminal integrada de VS Code (Windows)
 
-```bash
+El frontend necesita el backend para cargar contenido, iniciar sesión y guardar cambios. Sigue los pasos en orden y deja **dos terminales integradas de VS Code abiertas**: una ejecutará el backend y la otra el frontend.
+
+También puedes consultar el [README del backend](https://github.com/asistente-coder/Sostecoop-Back/blob/main/README.md).
+
+### 1. Preparar la carpeta de trabajo
+
+Instala Git, Python, Node.js y npm. Abre VS Code y selecciona **Archivo → Abrir carpeta**. Elige o crea una carpeta para guardar ambos repositorios, por ejemplo `Documents\GitHub\Sostecoop`.
+
+En VS Code selecciona **Terminal → Nuevo terminal**. Los ejemplos de abajo están escritos para PowerShell, el perfil habitual de la terminal integrada en Windows.
+
+### 2. Descargar los dos repositorios
+
+En esa terminal, desde la carpeta de trabajo abierta en VS Code, clona el backend y el frontend:
+
+```powershell
+git clone https://github.com/asistente-coder/Sostecoop-Back.git
 git clone https://github.com/asistenteprogramacion-code/Sostecoop-FRONT.git
+```
+
+Si ya descargaste alguno de los repositorios, no vuelvas a clonarlo; usa la carpeta que ya tienes.
+
+### 3. Instalar y arrancar el backend
+
+En la terminal integrada, ejecuta estos comandos uno por uno:
+
+```powershell
+cd Sostecoop-Back
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+Deja esta terminal abierta. Comprueba que el backend arrancó visitando [http://localhost:8000/api/health](http://localhost:8000/api/health); debe responder `{"status":"ok"}`.
+
+Si PowerShell bloquea la activación del entorno, ejecuta este comando y vuelve a activar:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### 4. Instalar el frontend y revisar el proxy
+
+En VS Code crea una segunda terminal con **Terminal → Nuevo terminal**. Ejecuta:
+
+```powershell
 cd Sostecoop-FRONT
 npm ci
 ```
 
-`npm ci` instala las versiones fijadas en `package-lock.json`.
-
-## Configurar el backend
-
-Este repositorio contiene solo el frontend; para cargar contenido, iniciar sesión y guardar cambios también se necesita el backend de Sostecoop. El backend debe estar iniciado antes de probar esas funciones.
-
-En desarrollo, las rutas `/api` y `/uploads` se reenvían mediante [`proxy.conf.json`](proxy.conf.json). Para trabajar localmente, configura el proxy con `http://localhost:8000`, donde normalmente se ejecuta el backend.
-
-Si ejecutas el backend en otro equipo o puerto, cambia `target` en las dos entradas del archivo `proxy.conf.json`:
+`npm ci` instala las dependencias del frontend. Antes de iniciarlo, abre [`proxy.conf.json`](proxy.conf.json) en VS Code. Las dos entradas `target`, para `/api` y `/uploads`, deben apuntar al backend local:
 
 ```json
-{
-  "/api": {
-    "target": "http://localhost:8000",
-    "secure": false,
-    "changeOrigin": true,
-    "ws": true
-  },
-  "/uploads": {
-    "target": "http://localhost:8000",
-    "secure": false,
-    "changeOrigin": true
-  }
-}
+"target": "http://localhost:8000"
 ```
 
-Si tu backend usa otro puerto, actualiza el destino en ambas entradas. Reinicia `npm start` después de modificar el proxy.
+El backend debe permitir el origen `http://localhost:3000` en su configuración CORS.
 
-El backend debe permitir el origen del frontend (`http://localhost:3000`) en su configuración CORS. Para producción, usa HTTPS y configura frontend y API bajo el mismo sitio para que el navegador pueda enviar la cookie de sesión.
+### 5. Arrancar el frontend
 
-## Iniciar en desarrollo
+En esa misma terminal, desde la carpeta `Sostecoop-FRONT`, ejecuta:
 
-```bash
+```powershell
 npm start
 ```
 
-Abre [http://localhost:3000](http://localhost:3000). Angular recarga la aplicación al guardar cambios.
+Angular se inicia en el puerto `3000`. Deja abiertas las dos terminales mientras uses el sitio.
 
-El sitio público se muestra en `/`. El acceso al panel está en `/admin/login`; el usuario y la contraseña se configuran en el backend, no en este repositorio.
+### 6. Abrir la aplicación
+
+- Sitio público: [http://localhost:3000](http://localhost:3000)
+- Panel de administración: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+
+El usuario y la contraseña del administrador se configuran en el backend; no están guardados en este frontend.
 
 ## Compilar para producción
 
