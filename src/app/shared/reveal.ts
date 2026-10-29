@@ -24,7 +24,10 @@ export class Reveal {
           el.classList.add('is-visible');
           observer.disconnect();
         },
-        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
+        // Las listas largas (p. ej. el catálogo con 30 noticias) pueden ser más
+        // altas que la ventana y nunca llegar al 12 % visible. Basta con que
+        // entren en pantalla para revelar el contenedor y sus elementos.
+        { threshold: 0, rootMargin: '0px 0px -40px 0px' },
       );
       observer.observe(el);
       destroyRef.onDestroy(() => observer.disconnect());
