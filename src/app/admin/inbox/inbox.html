@@ -28,7 +28,7 @@
 } @else {
   <ul class="list">
     @for (msg of store.messages(); track msg.id) {
-      <li class="msg" [class.open]="openId() === msg.id">
+      <li class="msg" [class.open]="openId() === msg.id" [class.unread]="!msg.read">
         <button class="summary" type="button" [attr.aria-expanded]="openId() === msg.id" (click)="toggle(msg)">
           <span class="avatar" aria-hidden="true">{{ initials(msg.name) }}</span>
           <span class="who">

@@ -10,6 +10,9 @@
     <a routerLink="mensajes" routerLinkActive="active" ariaCurrentWhenActive="page">
       <svg appIcon="inbox"></svg>
       <span>Mensajes</span>
+      @if (inbox.unreadCount(); as unread) {
+        @if (unread > 0) { <span class="unread-badge" aria-label="Mensajes sin leer">{{ unread > 99 ? '99+' : unread }}</span> }
+      }
     </a>
   </nav>
 

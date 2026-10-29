@@ -38,6 +38,9 @@ export class ObjectFields {
   readonly obj = input.required<Obj>();
   readonly sectionKey = input.required<string>();
   readonly newsCategories = input<readonly string[]>([]);
+  /** Menu completo y el índice del enlace editado, para bloquear destinos ocupados. */
+  readonly menuItems = input<unknown[]>([]);
+  readonly menuItemIndex = input<number | null>(null);
   /** Ruta de este objeto dentro del content ("items.2."), para ubicar sus errores. */
   readonly path = input('');
   readonly readOnly = input(false);
@@ -230,13 +233,15 @@ export class ObjectFields {
     return !!value && typeof value === 'object' && !Array.isArray(value);
   }
 
-  protected isRequiredMenuItem(key: string, item: unknown): boolean {
-    return (
+  protected isRequiredMenuItem(key: string, item: unknown, index: number): boolean {
+    if (!(
       this.sectionKey() === 'settings' &&
       key === 'menu' &&
       this.isObj(item) &&
       REQUIRED_MENU_ANCHORS.has(String((item as Obj)['anchor']))
-    );
+    )) return false;
+    const anchor = String((item as Obj)['anchor']);
+    return this.list(key).findIndex((entry) => this.isObj(entry) && String((entry as Obj)['anchor']) === anchor) === index;
   }
 
   protected isRequiredMenuAnchor(key: string): boolean {
@@ -246,6 +251,19 @@ export class ObjectFields {
       this.path().startsWith('menu.') &&
       REQUIRED_MENU_ANCHORS.has(String(this.obj()['anchor']))
     );
+  }
+
+  protected isMenuAnchorField(key: string): boolean {
+    return this.sectionKey() === 'settings' && key === 'anchor' && this.path().startsWith('menu.');
+  }
+
+  protected disabledMenuDestinations(): string[] {
+    const currentIndex = this.menuItemIndex();
+    return this.menuItems().flatMap((item, index) => {
+      if (index === currentIndex || !this.isObj(item)) return [];
+      const anchor = (item as Obj)['anchor'];
+      return typeof anchor === 'string' && anchor ? [anchor] : [];
+    });
   }
 
   protected error(key: string): string {
@@ -261,7 +279,8 @@ export class ObjectFields {
     if (!this.isObj(item)) return '';
     const obj = item as Obj;
     const value = obj['title'] ?? obj['question'] ?? obj['name'] ?? obj['label'];
-    return typeof value === 'string' ? value : '';
+    if (typeof value === 'string' && value.trim()) return value;
+    return 'anchor' in obj ? 'Nuevo enlace al menú' : '';
   }
 
   /** Dato secundario del elemento plegado: fecha y categoría, enlace o inicio del texto. */
@@ -271,7 +290,7 @@ export class ObjectFields {
     const date = typeof obj['date'] === 'string' ? formatDate(obj['date']) : '';
     const category = typeof obj['category'] === 'string' ? obj['category'] : '';
     if (date || category) return [date, category].filter(Boolean).join(' · ');
-    if (typeof obj['anchor'] === 'string') return obj['anchor'];
+    if (typeof obj['anchor'] === 'string') return obj['anchor'] || 'Selecciona un destino';
     const text = obj['text'] ?? obj['answer'];
     return typeof text === 'string' ? text : '';
   }
@@ -353,12 +372,18 @@ export class ObjectFields {
     }
     const index = atTop ? 0 : items.length - 1;
     this.expanded.update((set) => new Set([...set, `${key}:${index}`]));
+    if (this.sectionKey() === 'settings' && key === 'menu') {
+      const partner = index % 2 === 0 ? index + 1 : index - 1;
+      if (partner >= 0 && partner < items.length) {
+        this.expanded.update((set) => new Set([...set, `${key}:${partner}`]));
+      }
+    }
     this.changed.emit();
   }
 
   protected remove(key: string, index: number): void {
     if (this.isNewsList(key) || this.readOnly()) return;
-    if (this.isRequiredMenuItem(key, this.list(key)[index])) return;
+    if (this.isRequiredMenuItem(key, this.list(key)[index], index)) return;
     this.list(key).splice(index, 1);
     this.expanded.update((set) => new Set([...set].filter((id) => id !== `${key}:${index}`)));
     this.shiftExpanded(key, index + 1, -1);

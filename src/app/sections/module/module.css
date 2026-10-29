@@ -53,6 +53,8 @@
 }
 
 .cards article {
+  position: relative;
+  overflow: hidden;
   padding: 28px 26px 30px;
   border-radius: var(--radius-lg);
   background: white;
@@ -60,6 +62,21 @@
   transition:
     transform 0.35s var(--ease-out),
     box-shadow 0.35s var(--ease-out);
+}
+
+.cards .icon-watermark {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 112px;
+  height: 112px;
+  color: var(--green);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.cards article > :not(.icon-watermark) {
+  position: relative;
 }
 
 .cards article:hover {

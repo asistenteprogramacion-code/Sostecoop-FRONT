@@ -8,6 +8,13 @@
 </header>
 
 <form class="steps" (ngSubmit)="create()" novalidate>
+  <div class="adm-alert" [class.limit-reached]="atModuleLimit()" role="status">
+    @if (atModuleLimit()) {
+      Ya existen {{ moduleCount() }} de {{ maxModules }} módulos. El límite alcanzado impide crear otro.
+    } @else {
+      Módulos creados: {{ moduleCount() }} de {{ maxModules }}.
+    }
+  </div>
   <section class="adm-card step">
     <span class="num">1</span>
     <div class="step-body">
@@ -77,7 +84,7 @@
 
   <div class="actions">
     <a class="adm-btn quiet" routerLink="/admin/secciones">Cancelar</a>
-    <button class="adm-btn primary" type="submit" [disabled]="saving()">
+    <button class="adm-btn primary" type="submit" [disabled]="saving() || atModuleLimit()">
       {{ saving() ? 'Creando…' : 'Crear módulo' }}
       @if (!saving()) { <svg appIcon="arrow"></svg> }
     </button>

@@ -2,7 +2,7 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDropList, m
 import { Component, computed, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { anchorOf, CORE_KEYS } from '../../core/modules';
+import { anchorOf, CORE_KEYS, MAX_MODULES } from '../../core/modules';
 import { Section } from '../../core/site-content';
 import { Icon } from '../../shared/icon';
 import { AdminApi, apiErrorMessage, menuOf } from '../admin-api';
@@ -40,6 +40,9 @@ export class SectionsList {
   protected readonly hiddenCount = computed(
     () => this.sections().filter((s) => s.key !== SETTINGS_KEY && !s.visible).length,
   );
+  protected readonly moduleCount = computed(() => this.sections().filter((s) => isModule(s.key)).length);
+  protected readonly canCreateModule = computed(() => this.moduleCount() < MAX_MODULES);
+  protected readonly maxModules = MAX_MODULES;
 
   /** Anclas que ya están en el menú del sitio. */
   private readonly menuAnchors = computed(

@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { openLiveSocket } from '../core/live-socket';
 import { AdminApi, apiErrorMessage, ContactMessage } from './admin-api';
 
@@ -13,6 +13,7 @@ export class InboxStore {
   readonly messages = signal<ContactMessage[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
+  readonly unreadCount = computed(() => this.messages().filter((message) => !message.read).length);
 
   constructor() {
     this.load();
@@ -39,5 +40,10 @@ export class InboxStore {
   async remove(id: number): Promise<void> {
     await this.api.deleteContact(id);
     this.messages.update((list) => list.filter((m) => m.id !== id));
+  }
+
+  async markRead(id: number): Promise<void> {
+    const updated = await this.api.markContactRead(id);
+    this.messages.update((list) => list.map((message) => message.id === id ? updated : message));
   }
 }

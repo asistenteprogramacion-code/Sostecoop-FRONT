@@ -74,6 +74,27 @@
 
 .group.menu-links {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.group.menu-links > .item {
+  align-self: start;
+  width: 100%;
+  min-width: 0;
+}
+
+.group.menu-links > .item:only-of-type {
+  grid-column: 1 / -1;
+  width: min(100%, 680px);
+  justify-self: center;
+}
+
+/* Si queda un único enlace en la última fila, céntralo; al completar la fila
+   con el siguiente enlace, ambos recuperan el ancho normal de dos columnas. */
+.group.menu-links > .item:last-of-type:nth-of-type(odd) {
+  grid-column: 1 / -1;
+  width: min(100%, 680px);
+  justify-self: center;
 }
 
 .menu-links legend,

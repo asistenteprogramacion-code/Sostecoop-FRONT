@@ -16,4 +16,5 @@ import { Toasts } from '../toast';
 })
 export class Shell {
   protected readonly auth = inject(Auth);
+  protected readonly inbox = inject(InboxStore);
 }

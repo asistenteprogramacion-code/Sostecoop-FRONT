@@ -80,6 +80,7 @@
       <div class="cards stagger" appReveal>
         @for (item of items(); track $index) {
           <article>
+            <svg class="icon-watermark" [appIcon]="icon(item['icon'])" aria-hidden="true"></svg>
             <span class="icon"><svg [appIcon]="icon(item['icon'])"></svg></span>
             <h3>{{ str(item, 'title') }}</h3>
             <p>{{ str(item, 'text') }}</p>

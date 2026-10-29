@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../core/api';
-import { anchorOf, CORE_KEYS } from '../core/modules';
+import { anchorOf, CORE_KEYS, MAX_MODULES } from '../core/modules';
 import { MAX_MENU_ITEMS, withRequiredMenuItems } from '../core/menu-defaults';
 import { Section } from '../core/site-content';
 
@@ -13,6 +13,7 @@ export interface ContactMessage {
   phone: string | null;
   message: string;
   created_at: string;
+  read: boolean;
 }
 
 /** title, visible y position son parciales; content se reemplaza completo. */
@@ -66,7 +67,12 @@ export class AdminApi {
   }
 
   /** Crea un módulo nuevo (requiere POST /api/admin/sections en el backend). */
-  createSection(section: NewSection): Promise<Section> {
+  async createSection(section: NewSection): Promise<Section> {
+    const current = await this.sections();
+    const moduleCount = current.filter((item) => !CORE_KEYS.has(item.key)).length;
+    if (moduleCount >= MAX_MODULES) {
+      throw new Error(`El sitio permite un máximo de ${MAX_MODULES} módulos.`);
+    }
     return firstValueFrom(this.http.post<Section>(`${ADMIN}/sections`, section));
   }
 
@@ -119,6 +125,10 @@ export class AdminApi {
 
   deleteContact(id: number): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${ADMIN}/contacts/${id}`));
+  }
+
+  markContactRead(id: number): Promise<ContactMessage> {
+    return firstValueFrom(this.http.patch<ContactMessage>(`${ADMIN}/contacts/${id}/read`, {}));
   }
 }
 

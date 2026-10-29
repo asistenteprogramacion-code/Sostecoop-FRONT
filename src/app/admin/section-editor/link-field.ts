@@ -24,7 +24,7 @@ const CUSTOM = '__otro';
           @if (group.options.length) {
             <optgroup [label]="group.label">
               @for (option of group.options; track option.value) {
-                <option [value]="option.value" [selected]="selected() === option.value">{{ option.label }}</option>
+                <option [value]="option.value" [selected]="selected() === option.value" [disabled]="disabledValues().includes(option.value)">{{ option.label }}{{ disabledValues().includes(option.value) ? ' (en uso)' : '' }}</option>
               }
             </optgroup>
           }
@@ -113,6 +113,7 @@ export class LinkField {
   readonly optional = input(false);
   readonly error = input('');
   readonly locked = input(false);
+  readonly disabledValues = input<readonly string[]>([]);
   readonly valueChange = output<string>();
 
   /** El admin eligió escribir un enlace a mano aunque todavía esté vacío. */

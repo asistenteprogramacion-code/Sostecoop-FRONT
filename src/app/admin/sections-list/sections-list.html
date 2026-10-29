@@ -3,7 +3,11 @@
     <h1>Contenido del sitio</h1>
     <p>Toca una sección para editar sus textos e imágenes. Los cambios se ven al instante en la página.</p>
   </div>
-  <a class="adm-btn primary" routerLink="nuevo"><svg appIcon="plus"></svg> Nuevo módulo</a>
+  @if (canCreateModule()) {
+    <a class="adm-btn primary" routerLink="nuevo"><svg appIcon="plus"></svg> Nuevo módulo</a>
+  } @else {
+    <span class="adm-btn quiet" aria-label="Límite de módulos alcanzado">Límite: {{ moduleCount() }}/{{ maxModules }} módulos</span>
+  }
 </header>
 
 @if (error()) {

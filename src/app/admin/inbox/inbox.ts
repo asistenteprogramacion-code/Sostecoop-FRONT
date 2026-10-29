@@ -18,6 +18,7 @@ export class Inbox {
   private readonly toast = inject(Toast);
 
   protected readonly openId = signal<number | null>(null);
+  protected readonly markingReadId = signal<number | null>(null);
   protected readonly busyId = signal<number | null>(null);
   /** Mensaje con la confirmación de borrado abierta. */
   protected readonly confirmDeleteId = signal<number | null>(null);
@@ -25,10 +26,20 @@ export class Inbox {
   protected readonly timeAgo = timeAgo;
   protected readonly skeletons = [1, 2, 3, 4];
 
-  protected toggle(msg: ContactMessage): void {
+  protected async toggle(msg: ContactMessage): Promise<void> {
     const opening = this.openId() !== msg.id;
     this.openId.set(opening ? msg.id : null);
     this.confirmDeleteId.set(null);
+    if (opening && !msg.read) {
+      this.markingReadId.set(msg.id);
+      try {
+        await this.store.markRead(msg.id);
+      } catch (err) {
+        this.toast.error(apiErrorMessage(err, 'No se pudo marcar el mensaje como leído.'));
+      } finally {
+        this.markingReadId.set(null);
+      }
+    }
   }
 
   protected async remove(msg: ContactMessage): Promise<void> {

@@ -71,6 +71,21 @@ nav a.active svg {
   color: #6be0b8;
 }
 
+.unread-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #0e9c73;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .bottom {
   margin-top: auto;
   display: grid;
@@ -140,6 +155,10 @@ main {
 
   nav a {
     justify-content: center;
+  }
+
+  .unread-badge {
+    margin-left: 0;
   }
 
   nav a.active {

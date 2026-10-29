@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ModuleTemplate, TEMPLATES, uniqueKey } from '../../core/modules';
+import { CORE_KEYS, MAX_MODULES, ModuleTemplate, TEMPLATES, uniqueKey } from '../../core/modules';
 import { Section } from '../../core/site-content';
 import { Icon } from '../../shared/icon';
 import { AdminApi, apiErrorMessage } from '../admin-api';
@@ -20,6 +20,7 @@ export class NewModule {
   private readonly router = inject(Router);
 
   protected readonly templates = TEMPLATES;
+  protected readonly maxModules = MAX_MODULES;
 
   protected readonly name = signal('');
   protected readonly template = signal<ModuleTemplate>('tarjetas');
@@ -30,6 +31,8 @@ export class NewModule {
   protected readonly touched = signal(false);
 
   private readonly existing = signal<Section[]>([]);
+  protected readonly moduleCount = computed(() => this.existing().filter((item) => !CORE_KEYS.has(item.key)).length);
+  protected readonly atModuleLimit = computed(() => this.moduleCount() >= MAX_MODULES);
 
   /** Dirección que tendrá el módulo en la página, p. ej. #ahorro-escolar. */
   protected readonly key = computed(() =>
@@ -53,7 +56,7 @@ export class NewModule {
 
   protected async create(): Promise<void> {
     this.touched.set(true);
-    if (this.nameError() || this.saving()) return;
+    if (this.nameError() || this.saving() || this.atModuleLimit()) return;
     this.saving.set(true);
     this.error.set('');
 

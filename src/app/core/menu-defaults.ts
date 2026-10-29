@@ -14,7 +14,7 @@ export const DEFAULT_MENU: readonly MenuItemDefault[] = [
 export const REQUIRED_MENU_ANCHORS = new Set(DEFAULT_MENU.map((item) => item.anchor));
 export const MAX_MENU_ITEMS = 10;
 
-/** Conserva el orden guardado, agrega los enlaces base que falten al final y evita duplicados. */
+/** Conserva todos los enlaces y su orden; agrega solo los enlaces base que falten. */
 export function withRequiredMenuItems(value: unknown): MenuItemDefault[] {
   const items = Array.isArray(value)
     ? (value as Partial<MenuItemDefault>[]).filter(
@@ -27,7 +27,6 @@ export function withRequiredMenuItems(value: unknown): MenuItemDefault[] {
   const seen = new Set<string>();
 
   for (const item of items) {
-    if (seen.has(item.anchor)) continue;
     seen.add(item.anchor);
     const base = defaultsByAnchor.get(item.anchor);
     ordered.push({

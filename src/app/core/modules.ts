@@ -74,6 +74,8 @@ export const TEMPLATES: TemplateInfo[] = [
 
 /** Secciones con diseño propio en la landing; no se pueden borrar ni usan plantilla. */
 export const CORE_KEYS = new Set(['settings', 'hero', 'nosotros', 'noticias', 'contacto']);
+/** Máximo de secciones adicionales que se pueden crear desde el panel. */
+export const MAX_MODULES = 7;
 
 /** Claves que no pueden usar los módulos nuevos (rutas y anclas ya ocupadas). */
 const RESERVED_KEYS = new Set([...CORE_KEYS, 'inicio', 'admin', 'contenido', 'menu-principal']);

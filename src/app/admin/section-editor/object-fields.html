@@ -14,6 +14,8 @@
         <app-object-fields
           [obj]="asObj(value)"
           [sectionKey]="sectionKey()"
+          [menuItems]="menuItems()"
+          [menuItemIndex]="menuItemIndex()"
           [path]="path() + key + '.'"
           [readOnly]="readOnly()"
           [class.social-links]="sectionKey() === 'settings' && key === 'social'"
@@ -163,7 +165,7 @@
                   <button class="adm-btn quiet icon" type="button" [disabled]="last || readOnly()" (click)="move(key, i, 1)" [attr.aria-label]="'Bajar elemento ' + (i + 1)" title="Bajar">
                     <svg appIcon="move-down"></svg>
                   </button>
-                  <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [disabled]="readOnly() || isRequiredMenuItem(key, item)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" [title]="isRequiredMenuItem(key, item) ? 'Este enlace predeterminado no se puede quitar' : 'Quitar'">
+                  <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [disabled]="readOnly() || isRequiredMenuItem(key, item, i)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" [title]="isRequiredMenuItem(key, item, i) ? 'Este enlace predeterminado no se puede quitar' : 'Quitar'">
                     <svg appIcon="trash"></svg>
                   </button>
                 }
@@ -181,6 +183,8 @@
                   [obj]="asObj(item)"
                   [sectionKey]="sectionKey()"
                   [newsCategories]="newsCategories()"
+                  [menuItems]="sectionKey() === 'settings' && key === 'menu' ? list(key) : menuItems()"
+                  [menuItemIndex]="sectionKey() === 'settings' && key === 'menu' ? i : menuItemIndex()"
                   [path]="path() + key + '.' + i + '.'"
                   [readOnly]="readOnly() || (isNewsList(key) && isNewsEditLocked(item))"
                   [errors]="errors()"
@@ -213,6 +217,7 @@
         [value]="$any(value) ?? ''"
         [optional]="key === 'cta_anchor'"
         [locked]="isRequiredMenuAnchor(key) || readOnly()"
+        [disabledValues]="isMenuAnchorField(key) ? disabledMenuDestinations() : []"
         [error]="err"
         (valueChange)="set(key, $event)"
       />

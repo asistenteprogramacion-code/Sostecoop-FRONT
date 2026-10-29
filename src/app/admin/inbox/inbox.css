@@ -28,6 +28,15 @@
   box-shadow: var(--shadow), 0 0 0 1px #0b2c4314;
 }
 
+.msg.unread {
+  box-shadow: var(--shadow-sm), 0 0 0 2px #0e9c73;
+}
+
+.msg.unread:hover,
+.msg.unread.open {
+  box-shadow: var(--shadow), 0 0 0 2px #0e9c73;
+}
+
 .summary {
   width: 100%;
   display: grid;
