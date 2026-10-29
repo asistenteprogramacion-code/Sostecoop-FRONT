@@ -227,7 +227,7 @@
       </label>
     }
     @default {
-      <label class="adm-field cell" [class.full]="(!short(key, k) && key !== 'mission' && key !== 'vision') || (sectionKey() === 'settings' && key === 'site_name') || (sectionKey() === 'contacto' && key === 'map_url') || (sectionKey() === 'noticias' && key === 'author')" [class.invalid]="err">
+      <label class="adm-field cell" [class.full]="(!short(key, k) && key !== 'mission' && key !== 'vision') || (sectionKey() === 'settings' && key === 'site_name') || (sectionKey() === 'contacto' && key === 'map_url') || (sectionKey() === 'noticias' && key === 'author') || (sectionKey() === 'testimonios' && key === 'name')" [class.invalid]="err">
         <span>{{ label(key) }}</span>
         @switch (k) {
           @case ('long') {

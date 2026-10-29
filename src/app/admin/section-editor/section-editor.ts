@@ -139,7 +139,7 @@ export class SectionEditor {
     try {
       const updated = await this.api.updateSection(section.key, {
         title: this.title().trim() || section.title,
-        content: this.content(),
+        content: section.key === 'noticias' ? newsContentForSave(this.content()) : this.content(),
       });
       // Si cambió el nombre y está en el menú, el menú muestra el nombre nuevo.
       if (updated.title !== section.title && this.inMenu()) {
@@ -320,6 +320,20 @@ function normalizeNews(content: Record<string, unknown>): void {
     item['slug'] = slug;
     item['reading_minutes'] = Number(item['reading_minutes']) || 0;
   }
+}
+
+/** Envía la lista completa conservando id y active; created_at lo controla el backend. */
+function newsContentForSave(content: Record<string, unknown>): Record<string, unknown> {
+  const items = content['items'];
+  if (!Array.isArray(items)) return content;
+  return {
+    ...content,
+    items: items.map((item) => {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+      const { created_at: _createdAt, ...news } = item as Record<string, unknown>;
+      return news;
+    }),
+  };
 }
 
 const DEFAULT_NEWS_CATEGORIES = ['Educación financiera', 'Cooperativa', 'Consejos'];
