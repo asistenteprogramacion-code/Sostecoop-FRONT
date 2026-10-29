@@ -3,14 +3,6 @@
     <h1>Mensajes</h1>
     <p>Lo que envían los visitantes desde el formulario de contacto. Los nuevos llegan solos.</p>
   </div>
-  <div class="filters" role="tablist" aria-label="Filtrar mensajes">
-    <button type="button" role="tab" [attr.aria-selected]="filter() === 'todos'" [class.on]="filter() === 'todos'" (click)="filter.set('todos')">
-      Todos <span class="adm-badge muted">{{ store.messages().length }}</span>
-    </button>
-    <button type="button" role="tab" [attr.aria-selected]="filter() === 'sin-leer'" [class.on]="filter() === 'sin-leer'" (click)="filter.set('sin-leer')">
-      Sin leer <span class="adm-badge" [class.muted]="!store.unread()">{{ store.unread() }}</span>
-    </button>
-  </div>
 </header>
 
 @if (store.error()) {
@@ -35,14 +27,13 @@
   </ul>
 } @else {
   <ul class="list">
-    @for (msg of visible(); track msg.id) {
-      <li class="msg" [class.unread]="!msg.read" [class.open]="openId() === msg.id">
+    @for (msg of store.messages(); track msg.id) {
+      <li class="msg" [class.open]="openId() === msg.id">
         <button class="summary" type="button" [attr.aria-expanded]="openId() === msg.id" (click)="toggle(msg)">
           <span class="avatar" aria-hidden="true">{{ initials(msg.name) }}</span>
           <span class="who">
             <b>
               {{ msg.name }}
-              @if (!msg.read) { <span class="new">Nuevo</span> }
             </b>
             <span class="preview">{{ msg.message }}</span>
           </span>
@@ -72,11 +63,6 @@
                 </div>
               } @else {
                 <a class="adm-btn primary small" [href]="replyLink(msg)"><svg appIcon="reply"></svg> Responder</a>
-                @if (!msg.read) {
-                  <button class="adm-btn ghost small" type="button" [disabled]="busyId() === msg.id" (click)="markRead(msg)">
-                    <svg appIcon="check"></svg> Marcar como leído
-                  </button>
-                }
                 <button class="adm-btn quiet small delete" type="button" (click)="confirmDeleteId.set(msg.id)">
                   <svg appIcon="trash"></svg> Borrar
                 </button>
@@ -87,14 +73,9 @@
       </li>
     } @empty {
       <li class="adm-card adm-empty">
-        <span class="art"><svg [appIcon]="filter() === 'sin-leer' ? 'check' : 'inbox'"></svg></span>
-        @if (filter() === 'sin-leer') {
-          <b>Estás al día</b>
-          <span>No tienes mensajes sin leer.</span>
-        } @else {
-          <b>Aún no hay mensajes</b>
-          <span>Cuando alguien escriba desde el formulario del sitio, aparecerá aquí.</span>
-        }
+        <span class="art"><svg appIcon="inbox"></svg></span>
+        <b>Aún no hay mensajes</b>
+        <span>Cuando alguien escriba desde el formulario del sitio, aparecerá aquí.</span>
       </li>
     }
   </ul>

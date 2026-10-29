@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../core/api';
 import { anchorOf, CORE_KEYS } from '../core/modules';
-import { withRequiredMenuItems } from '../core/menu-defaults';
+import { MAX_MENU_ITEMS, withRequiredMenuItems } from '../core/menu-defaults';
 import { Section } from '../core/site-content';
 
 export interface ContactMessage {
@@ -12,7 +12,6 @@ export interface ContactMessage {
   email: string;
   phone: string | null;
   message: string;
-  read: boolean;
   created_at: string;
 }
 
@@ -56,6 +55,13 @@ export class AdminApi {
             content: { ...patch.content, menu: withRequiredMenuItems(patch.content['menu']) },
           }
         : patch;
+    if (
+      key === 'settings' &&
+      Array.isArray(normalizedPatch.content?.['menu']) &&
+      normalizedPatch.content['menu'].length > MAX_MENU_ITEMS
+    ) {
+      return Promise.reject(new Error(`El menú admite un máximo de ${MAX_MENU_ITEMS} enlaces. Quita los sobrantes antes de guardar.`));
+    }
     return firstValueFrom(this.http.put<Section>(`${ADMIN}/sections/${key}`, normalizedPatch));
   }
 
@@ -90,8 +96,13 @@ export class AdminApi {
     const menu = inMenu
       ? exists
         ? current.map((i) => (i.anchor === anchor ? { ...i, label } : i))
-        : [...current, { label, anchor }]
+        : current.length >= MAX_MENU_ITEMS
+          ? null
+          : [...current, { label, anchor }]
       : current.filter((i) => i.anchor !== anchor);
+    if (!menu) {
+      throw new Error(`El menú admite un máximo de ${MAX_MENU_ITEMS} enlaces. Quita uno antes de agregar otro.`);
+    }
     return this.updateSection('settings', { content: { ...settings.content, menu } });
   }
 
@@ -104,10 +115,6 @@ export class AdminApi {
 
   contacts(): Promise<ContactMessage[]> {
     return firstValueFrom(this.http.get<ContactMessage[]>(`${ADMIN}/contacts`));
-  }
-
-  markRead(id: number): Promise<ContactMessage> {
-    return firstValueFrom(this.http.patch<ContactMessage>(`${ADMIN}/contacts/${id}/read`, {}));
   }
 
   deleteContact(id: number): Promise<void> {

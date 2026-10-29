@@ -9,6 +9,7 @@ type Obj = Record<string, unknown>;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE = /^\+?[\d\s().-]{6,}$/;
+const WHATSAPP_NUMBER = /^\d{10}$/;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const URL = /^https?:\/\/\S+\.\S+/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -38,7 +39,7 @@ const MAX: Record<string, number> = {
 function requiredInItem(item: Obj): string[] {
   if ('question' in item) return ['question', 'answer'];
   if ('name' in item && 'text' in item) return ['name', 'text'];
-  if ('slug' in item && 'body' in item) return ['title', 'date', 'summary', 'body'];
+  if ('slug' in item && 'body' in item) return ['title', 'date', 'category', 'summary', 'body'];
   if ('label' in item && 'anchor' in item) return ['label', 'anchor'];
   if ('title' in item) return ['title'];
   return [];
@@ -124,9 +125,9 @@ function checkField(key: string, value: unknown, links?: ReadonlySet<string>): s
     case 'instagram':
       return URL.test(text) ? '' : 'Pega el enlace completo, empezando por https://.';
     case 'whatsapp':
-      return URL.test(text) || (PHONE.test(text) && digits(text) >= 7)
+      return WHATSAPP_NUMBER.test(text)
         ? ''
-        : 'Escribe el número o el enlace de WhatsApp.';
+        : 'Escribe un número de 10 dígitos, solo números y sin indicativo del país.';
     default:
       return '';
   }

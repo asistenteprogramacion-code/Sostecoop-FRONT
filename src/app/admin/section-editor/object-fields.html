@@ -5,7 +5,7 @@
   @switch (k) {
     @case ('image') {
       <div class="cell full">
-        <app-image-field [label]="label(key)" [value]="$any(value)" (valueChange)="set(key, $event)" />
+        <app-image-field [label]="label(key)" [value]="$any(value)" [disabled]="readOnly()" (valueChange)="set(key, $event)" />
       </div>
     }
     @case ('group') {
@@ -15,16 +15,18 @@
           [obj]="asObj(value)"
           [sectionKey]="sectionKey()"
           [path]="path() + key + '.'"
+          [readOnly]="readOnly()"
+          [class.social-links]="sectionKey() === 'settings' && key === 'social'"
           [errors]="errors()"
           (changed)="changed.emit()"
         />
       </fieldset>
     }
     @case ('list') {
-      <fieldset class="group cell full">
+      <fieldset class="group cell full" [class.menu-links]="sectionKey() === 'settings' && key === 'menu'">
         <legend>
           <span>{{ listName(key) }} <span class="adm-badge muted">{{ list(key).length }}</span></span>
-          @if (list(key).length > 1 && isObj(list(key)[0])) {
+          @if (!isNewsList(key) && list(key).length > 1 && isObj(list(key)[0])) {
             <span class="fold-all">
               <button type="button" (click)="setAll(key, true)">Abrir todos</button>
               <button type="button" (click)="setAll(key, false)">Cerrar todos</button>
@@ -32,14 +34,107 @@
           }
         </legend>
 
-        @for (item of list(key); track $index; let i = $index, first = $first, last = $last) {
+        @if (isNewsList(key)) {
+          <div class="category-launcher">
+            <div>
+              <b>Categorías</b>
+              <small>Gestiona las opciones de las noticias.</small>
+            </div>
+            <button class="adm-btn ghost small" type="button" [disabled]="readOnly()" (click)="openCategoryManager()">
+              Administrar <span class="category-total">{{ newsCategories().length }}</span>
+            </button>
+          </div>
+
+          @if (categoryModalOpen()) {
+            <dialog #categoryDialog class="category-dialog" aria-labelledby="category-dialog-title" (close)="onCategoryDialogClose()" (click)="onCategoryDialogClick($event)">
+              <div class="category-dialog-content">
+                <header class="category-dialog-head">
+                  <div>
+                    <span class="category-dialog-eyebrow">ORGANIZACIÓN</span>
+                    <h2 id="category-dialog-title">Categorías de noticias</h2>
+                    <p>Crea opciones para clasificar tus publicaciones.</p>
+                  </div>
+                  <button class="category-dialog-close" type="button" aria-label="Cerrar categorías" (click)="closeCategoryManager()">
+                    <svg appIcon="close"></svg>
+                  </button>
+                </header>
+
+                <section class="category-create" aria-label="Crear categoría">
+                  <label for="news-category-name">Nueva categoría</label>
+                  <div class="category-create-controls">
+                    <input
+                      id="news-category-name"
+                      class="adm-input"
+                      type="text"
+                      maxlength="40"
+                      placeholder="Ej. Educación financiera"
+                      [ngModel]="categoryDraft()"
+                      [ngModelOptions]="{ standalone: true }"
+                      [disabled]="readOnly()"
+                      (ngModelChange)="categoryDraft.set($event)"
+                      (keydown.enter)="$event.preventDefault(); addCategory()"
+                    />
+                    <button class="adm-btn primary" type="button" [disabled]="!canAddCategory() || readOnly()" (click)="addCategory()">
+                      <svg appIcon="plus"></svg> Crear categoría
+                    </button>
+                  </div>
+                  <small>Hasta 40 caracteres. No se permiten nombres repetidos.</small>
+                </section>
+
+                <section class="category-list" aria-label="Categorías disponibles">
+                  <div class="category-list-head">
+                    <h3>Categorías disponibles</h3>
+                    <span>{{ newsCategories().length }}</span>
+                  </div>
+                  <div class="category-chips">
+                    @for (category of newsCategories(); track category) {
+                      <div class="category-chip">
+                        <span class="category-chip-name">{{ category }}</span>
+                        <small>{{ categoryUsage(category) }} {{ categoryUsage(category) === 1 ? 'noticia' : 'noticias' }}</small>
+                        <button
+                          class="category-delete"
+                          type="button"
+                          [disabled]="readOnly() || categoryUsage(category) > 0"
+                          [attr.aria-label]="'Eliminar categoría ' + category"
+                          [title]="categoryUsage(category) ? 'Cambia primero la categoría de sus noticias' : 'Eliminar categoría'"
+                          (click)="removeCategory(category)"
+                        >
+                          <svg appIcon="trash"></svg>
+                        </button>
+                      </div>
+                    } @empty {
+                      <div class="category-empty">
+                        <b>Aún no hay categorías</b>
+                        <span>Crea una para poder clasificar tus noticias.</span>
+                      </div>
+                    }
+                  </div>
+                  <p class="category-note">Para eliminar una categoría asignada, primero cámbiala en las noticias que la usan.</p>
+                </section>
+              </div>
+            </dialog>
+          }
+
+          <div class="news-tabs" role="tablist" aria-label="Filtrar noticias por estado">
+            <button type="button" role="tab" [class.selected]="newsTab() === 'active'" [attr.aria-selected]="newsTab() === 'active'" (click)="setNewsTab('active')">
+              Activadas <span>{{ newsCount(key, true) }}</span>
+            </button>
+            <button type="button" role="tab" [class.selected]="newsTab() === 'inactive'" [attr.aria-selected]="newsTab() === 'inactive'" (click)="setNewsTab('inactive')">
+              Desactivadas <span>{{ newsCount(key, false) }}</span>
+            </button>
+          </div>
+        }
+
+        @for (entry of entries(key); track entry.index; let position = $index, first = $first, last = $last) {
+          @let item = entry.item;
+          @let i = entry.index;
           @let open = !isObj(item) || isOpen(key, i);
           @let itemErr = itemErrors(key, i);
-          <div class="item" [class.open]="open" [class.has-error]="itemErr">
+          <div class="item" [class.open]="open" [class.has-error]="itemErr" [class.news-inactive]="isNewsList(key) && !newsIsActive(item)">
             <div class="item-head">
-              <span class="index">{{ i + 1 }}</span>
+              <span class="index">{{ isNewsList(key) ? position + 1 : i + 1 }}</span>
               @if (!isObj(item)) {
-                <input class="adm-input" [ngModel]="item" (ngModelChange)="setItem(key, i, $event)" [attr.aria-label]="label(key) + ' ' + (i + 1)" />
+                <input class="adm-input" [ngModel]="item" [disabled]="readOnly()" (ngModelChange)="setItem(key, i, $event)" [attr.aria-label]="label(key) + ' ' + (i + 1)" />
               } @else {
                 <button class="item-toggle" type="button" [attr.aria-expanded]="open" (click)="toggle(key, i)">
                   <span class="item-text">
@@ -53,23 +148,41 @@
                 </button>
               }
               <div class="item-actions">
-                <button class="adm-btn quiet icon" type="button" [disabled]="first" (click)="move(key, i, -1)" [attr.aria-label]="'Subir elemento ' + (i + 1)" title="Subir">
-                  <svg appIcon="move-up"></svg>
-                </button>
-                <button class="adm-btn quiet icon" type="button" [disabled]="last" (click)="move(key, i, 1)" [attr.aria-label]="'Bajar elemento ' + (i + 1)" title="Bajar">
-                  <svg appIcon="move-down"></svg>
-                </button>
-                <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [disabled]="isRequiredMenuItem(key, item)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" [title]="isRequiredMenuItem(key, item) ? 'Este enlace predeterminado no se puede quitar' : 'Quitar'">
-                  <svg appIcon="trash"></svg>
-                </button>
+                @if (isNewsList(key)) {
+                  <span class="news-state" [class.inactive]="!newsIsActive(item)">
+                    <span class="news-state-dot" aria-hidden="true"></span>
+                    {{ newsIsActive(item) ? 'Publicada' : 'Desactivada' }}
+                  </span>
+                  <button class="adm-btn quiet small news-toggle" type="button" [disabled]="readOnly()" (click)="toggleNewsActive(key, i)" [attr.aria-label]="newsIsActive(item) ? 'Desactivar noticia' : 'Activar noticia'">
+                    {{ newsIsActive(item) ? 'Desactivar' : 'Activar' }}
+                  </button>
+                } @else {
+                  <button class="adm-btn quiet icon" type="button" [disabled]="first || readOnly()" (click)="move(key, i, -1)" [attr.aria-label]="'Subir elemento ' + (i + 1)" title="Subir">
+                    <svg appIcon="move-up"></svg>
+                  </button>
+                  <button class="adm-btn quiet icon" type="button" [disabled]="last || readOnly()" (click)="move(key, i, 1)" [attr.aria-label]="'Bajar elemento ' + (i + 1)" title="Bajar">
+                    <svg appIcon="move-down"></svg>
+                  </button>
+                  <button class="adm-btn quiet icon remove" type="button" (click)="remove(key, i)" [disabled]="readOnly() || isRequiredMenuItem(key, item)" [attr.aria-label]="'Quitar elemento ' + (i + 1)" [title]="isRequiredMenuItem(key, item) ? 'Este enlace predeterminado no se puede quitar' : 'Quitar'">
+                    <svg appIcon="trash"></svg>
+                  </button>
+                }
               </div>
             </div>
             @if (isObj(item) && open) {
               <div class="item-body">
+                @if (isNewsList(key)) {
+                  <div class="news-edit-notice" [class.locked]="isNewsEditLocked(item)" role="status">
+                    <span class="news-edit-icon" aria-hidden="true">{{ isNewsEditLocked(item) ? '!' : 'i' }}</span>
+                    <span>{{ newsEditMessage(item) }}</span>
+                  </div>
+                }
                 <app-object-fields
                   [obj]="asObj(item)"
                   [sectionKey]="sectionKey()"
+                  [newsCategories]="newsCategories()"
                   [path]="path() + key + '.' + i + '.'"
+                  [readOnly]="readOnly() || (isNewsList(key) && isNewsEditLocked(item))"
                   [errors]="errors()"
                   (changed)="changed.emit()"
                 />
@@ -77,10 +190,19 @@
             }
           </div>
         } @empty {
-          <p class="none">Todavía no hay nada aquí. Usa el botón de abajo para agregar.</p>
+          @if (isNewsList(key)) {
+            <p class="none">{{ newsTab() === 'active' ? 'No hay noticias activadas.' : 'No hay noticias desactivadas.' }}</p>
+          } @else {
+            <p class="none">Todavía no hay nada aquí. Usa el botón de abajo para agregar.</p>
+          }
         }
 
-        <button class="add" type="button" (click)="add(key)"><svg appIcon="plus"></svg> {{ addText(key) }}</button>
+        <button class="add" type="button" (click)="add(key)" [disabled]="!canAdd(key) || readOnly()" [attr.title]="canAdd(key) ? null : 'El menú admite un máximo de 10 enlaces'">
+          <svg appIcon="plus"></svg> {{ addText(key) }}
+        </button>
+        @if (!canAdd(key)) {
+          <p class="menu-limit" role="status">El menú admite hasta 10 enlaces. Quita un enlace para poder agregar otro.</p>
+        }
       </fieldset>
     }
     @case ('link') {
@@ -90,35 +212,44 @@
         [label]="label(key)"
         [value]="$any(value) ?? ''"
         [optional]="key === 'cta_anchor'"
-        [locked]="isRequiredMenuAnchor(key)"
+        [locked]="isRequiredMenuAnchor(key) || readOnly()"
         [error]="err"
         (valueChange)="set(key, $event)"
       />
     }
     @case ('icon') {
-      <app-icon-field class="cell" [label]="label(key)" [value]="$any(value) ?? ''" (valueChange)="set(key, $event)" />
+      <app-icon-field class="cell" [label]="label(key)" [value]="$any(value) ?? ''" [disabled]="readOnly()" (valueChange)="set(key, $event)" />
     }
     @case ('bool') {
       <label class="adm-switch cell">
-        <input type="checkbox" [ngModel]="value" (ngModelChange)="set(key, $event)" />
+        <input type="checkbox" [ngModel]="value" [disabled]="readOnly()" (ngModelChange)="set(key, $event)" />
         {{ label(key) }}
       </label>
     }
     @default {
-      <label class="adm-field cell" [class.full]="!short(key, k)" [class.invalid]="err">
+      <label class="adm-field cell" [class.full]="(!short(key, k) && key !== 'mission' && key !== 'vision') || (sectionKey() === 'settings' && key === 'site_name') || (sectionKey() === 'contacto' && key === 'map_url') || (sectionKey() === 'noticias' && key === 'author')" [class.invalid]="err">
         <span>{{ label(key) }}</span>
         @switch (k) {
           @case ('long') {
-            <textarea class="adm-input" [rows]="key === 'body' ? 12 : 3" [ngModel]="value" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err"></textarea>
+            <textarea class="adm-input" [rows]="key === 'body' ? 12 : 3" [ngModel]="value" [disabled]="readOnly()" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err"></textarea>
           }
           @case ('date') {
-            <input class="adm-input" type="date" [ngModel]="value ?? ''" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err" />
+            <input class="adm-input" type="date" [ngModel]="value ?? ''" [disabled]="readOnly()" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err" />
           }
           @case ('number') {
-            <input class="adm-input" type="number" min="0" [ngModel]="value" (ngModelChange)="set(key, $event ?? 0)" [attr.aria-invalid]="!!err" />
+            <input class="adm-input" type="number" min="0" [ngModel]="value" [disabled]="readOnly()" (ngModelChange)="set(key, $event ?? 0)" [attr.aria-invalid]="!!err" />
           }
           @default {
-            <input class="adm-input" [ngModel]="value ?? ''" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err" />
+            @if (sectionKey() === 'noticias' && key === 'category') {
+              <select class="adm-input" [ngModel]="value ?? ''" [disabled]="readOnly()" (ngModelChange)="set(key, $event)" [attr.aria-invalid]="!!err">
+                <option value="" disabled>Elige una categoría</option>
+                @for (category of newsCategories(); track category) {
+                  <option [value]="category">{{ category }}</option>
+                }
+              </select>
+            } @else {
+              <input class="adm-input" [ngModel]="value ?? ''" [disabled]="readOnly()" [attr.type]="key === 'whatsapp' ? 'tel' : 'text'" [attr.inputmode]="key === 'whatsapp' ? 'numeric' : null" [attr.pattern]="key === 'whatsapp' ? '[0-9]{10}' : null" [attr.maxlength]="key === 'whatsapp' ? 10 : null" (ngModelChange)="key === 'whatsapp' ? setDigitsOnly(key, $event) : set(key, $event)" [placeholder]="placeholder(key)" [attr.aria-label]="key === 'whatsapp' ? 'WhatsApp, 10 dígitos' : null" [attr.aria-invalid]="!!err" />
+            }
           }
         }
         @if (err) {

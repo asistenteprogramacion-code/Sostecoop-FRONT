@@ -1,12 +1,13 @@
-import { Component, input, output, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, ElementRef, inject, Injector, input, output, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../shared/icon';
-import { REQUIRED_MENU_ANCHORS } from '../../core/menu-defaults';
+import { MAX_MENU_ITEMS, REQUIRED_MENU_ANCHORS } from '../../core/menu-defaults';
 import {
   addsAtTop,
   fieldHint,
   fieldKind,
   fieldLabel,
+  fieldPlaceholder,
   isHiddenField,
   isShortField,
   listLabel,
@@ -32,20 +33,36 @@ const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', '
   styleUrl: './object-fields.css',
 })
 export class ObjectFields {
+  private static readonly NEWS_ITEMS_KEY = 'items';
+  private static readonly NEWS_EDIT_WINDOW_MS = 72 * 60 * 60 * 1000;
   readonly obj = input.required<Obj>();
   readonly sectionKey = input.required<string>();
+  readonly newsCategories = input<readonly string[]>([]);
   /** Ruta de este objeto dentro del content ("items.2."), para ubicar sus errores. */
   readonly path = input('');
+  readonly readOnly = input(false);
   readonly errors = input<FieldErrors>({});
   readonly changed = output<void>();
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly categoryDialog = viewChild<ElementRef<HTMLDialogElement>>('categoryDialog');
 
   protected readonly label = fieldLabel;
   protected readonly hint = fieldHint;
+  protected readonly placeholder = fieldPlaceholder;
   protected readonly kind = fieldKind;
   protected readonly short = isShortField;
 
   /** Elementos de lista abiertos, como "items:2". Los demás se ven plegados. */
   protected readonly expanded = signal<ReadonlySet<string>>(new Set());
+  protected readonly now = signal(Date.now());
+
+  constructor() {
+    afterNextRender(() => {
+      const timer = window.setInterval(() => this.now.set(Date.now()), 60_000);
+      this.destroyRef.onDestroy(() => window.clearInterval(timer));
+    });
+  }
 
   protected listName(key: string): string {
     return listLabel(this.sectionKey(), key);
@@ -64,8 +81,141 @@ export class ObjectFields {
     return `Agregar ${nouns[this.listName(key)] ?? 'elemento'}`;
   }
 
+  protected canAdd(key: string): boolean {
+    return !(this.sectionKey() === 'settings' && key === 'menu') || this.list(key).length < MAX_MENU_ITEMS;
+  }
+
+  protected isNewsList(key: string): boolean {
+    return this.sectionKey() === 'noticias' && key === ObjectFields.NEWS_ITEMS_KEY;
+  }
+
+  protected newsEntries(key: string): { item: unknown; index: number }[] {
+    const activeTab = this.newsTab();
+    return this.list(key)
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => this.newsIsActive(item) === (activeTab === 'active'));
+  }
+
+  protected entries(key: string): { item: unknown; index: number }[] {
+    return this.isNewsList(key)
+      ? this.newsEntries(key)
+      : this.list(key).map((item, index) => ({ item, index }));
+  }
+
+  protected readonly newsTab = signal<'active' | 'inactive'>('active');
+
+  protected newsIsActive(item: unknown): boolean {
+    return !this.isObj(item) || (item as Obj)['active'] !== false;
+  }
+
+  protected isNewsEditLocked(item: unknown): boolean {
+    const createdAt = this.newsCreatedAt(item);
+    if (createdAt === null) return this.newsHasBeenSaved(item);
+    return this.now() - createdAt >= ObjectFields.NEWS_EDIT_WINDOW_MS;
+  }
+
+  protected newsEditMessage(item: unknown): string {
+    const createdAt = this.newsCreatedAt(item);
+    if (createdAt === null) {
+      return this.newsHasBeenSaved(item)
+        ? 'Edición bloqueada: el servidor no entregó la fecha de creación.'
+        : 'El plazo de edición de 3 días empieza cuando guardes esta noticia.';
+    }
+
+    const remaining = createdAt + ObjectFields.NEWS_EDIT_WINDOW_MS - this.now();
+    if (remaining <= 0) return 'Terminó el plazo de edición. El contenido está bloqueado, pero puedes activar o desactivar esta noticia cuando quieras.';
+    const hoursTotal = Math.ceil(remaining / (60 * 60 * 1000));
+    const days = Math.floor(hoursTotal / 24);
+    const hours = hoursTotal % 24;
+    if (days && hours) return `Edición disponible: ${days} d ${hours} h más.`;
+    if (days) return `Edición disponible: ${days} ${days === 1 ? 'día' : 'días'} más.`;
+    return `Edición disponible: ${hoursTotal} ${hoursTotal === 1 ? 'hora' : 'horas'} más.`;
+  }
+
+  private newsHasBeenSaved(item: unknown): boolean {
+    return this.isObj(item) && typeof (item as Obj)['slug'] === 'string' && !!String((item as Obj)['slug']).trim();
+  }
+
+  private newsCreatedAt(item: unknown): number | null {
+    if (!this.isObj(item)) return null;
+    const value = (item as Obj)['created_at'];
+    if (typeof value !== 'string' || !value.trim()) return null;
+    const timestamp = Date.parse(value);
+    return Number.isFinite(timestamp) ? timestamp : null;
+  }
+
+  protected newsCount(key: string, active: boolean): number {
+    return this.list(key).filter((item) => this.newsIsActive(item) === active).length;
+  }
+
+  protected setNewsTab(tab: 'active' | 'inactive'): void {
+    this.newsTab.set(tab);
+  }
+
+  protected readonly categoryDraft = signal('');
+  protected readonly categoryModalOpen = signal(false);
+
+  protected openCategoryManager(): void {
+    if (this.readOnly() || this.categoryModalOpen()) return;
+    this.categoryModalOpen.set(true);
+    afterNextRender(() => {
+      const dialog = this.categoryDialog()?.nativeElement;
+      if (dialog && !dialog.open) dialog.showModal();
+    }, { injector: this.injector });
+  }
+
+  protected closeCategoryManager(): void {
+    this.categoryDialog()?.nativeElement.close();
+    this.categoryModalOpen.set(false);
+  }
+
+  protected onCategoryDialogClose(): void {
+    this.categoryModalOpen.set(false);
+  }
+
+  protected onCategoryDialogClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.closeCategoryManager();
+  }
+
+  protected canAddCategory(): boolean {
+    const value = this.categoryDraft().trim();
+    return !!value && value.length <= 40 && !this.newsCategories().some((category) => category.toLocaleLowerCase() === value.toLocaleLowerCase());
+  }
+
+  protected addCategory(): void {
+    const value = this.categoryDraft().trim().slice(0, 40);
+    if (!value || !this.canAddCategory() || this.readOnly()) return;
+    this.obj()['categories'] = [...this.newsCategories(), value];
+    this.categoryDraft.set('');
+    this.changed.emit();
+  }
+
+  protected categoryUsage(category: string): number {
+    const items = this.obj()['items'];
+    if (!Array.isArray(items)) return 0;
+    return items.filter(
+      (item) => this.isObj(item) && String((item as Obj)['category'] ?? '').trim().toLocaleLowerCase() === category.toLocaleLowerCase(),
+    ).length;
+  }
+
+  protected removeCategory(category: string): void {
+    if (this.readOnly() || this.categoryUsage(category)) return;
+    this.obj()['categories'] = this.newsCategories().filter((item) => item.toLocaleLowerCase() !== category.toLocaleLowerCase());
+    this.changed.emit();
+  }
+
+  protected toggleNewsActive(key: string, index: number): void {
+    if (!this.isNewsList(key)) return;
+    const item = this.list(key)[index];
+    if (!this.isObj(item)) return;
+    (item as Obj)['active'] = !this.newsIsActive(item);
+    this.changed.emit();
+  }
+
   protected keys(): string[] {
-    return Object.keys(this.obj()).filter((k) => !isHiddenField(k));
+    return Object.keys(this.obj()).filter(
+      (key) => !isHiddenField(key) && !(this.sectionKey() === 'noticias' && key === 'active'),
+    );
   }
 
   protected list(key: string): unknown[] {
@@ -131,11 +281,19 @@ export class ObjectFields {
   }
 
   protected toggle(key: string, index: number): void {
-    const id = `${key}:${index}`;
+    const indices = [index];
+    if (this.sectionKey() === 'settings' && key === 'menu') {
+      const partner = index % 2 === 0 ? index + 1 : index - 1;
+      if (partner >= 0 && partner < this.list(key).length) indices.push(partner);
+    }
+    const open = !this.isOpen(key, index);
     this.expanded.update((set) => {
       const next = new Set(set);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      for (const itemIndex of indices) {
+        const id = `${key}:${itemIndex}`;
+        if (open) next.add(id);
+        else next.delete(id);
+      }
       return next;
     });
   }
@@ -163,18 +321,29 @@ export class ObjectFields {
   }
 
   protected set(key: string, value: unknown): void {
+    if (this.readOnly()) return;
     this.obj()[key] = value;
     this.changed.emit();
   }
 
+  protected setDigitsOnly(key: string, value: string): void {
+    this.set(key, value.replace(/\D/g, '').slice(0, 10));
+  }
+
   protected setItem(key: string, index: number, value: unknown): void {
+    if (this.readOnly()) return;
     this.list(key)[index] = value;
     this.changed.emit();
   }
 
   protected add(key: string): void {
+    if (!this.canAdd(key) || this.readOnly()) return;
     const items = this.list(key);
     const item = newItem(this.sectionKey(), key, items);
+    if (this.isNewsList(key)) {
+      this.newsTab.set('active');
+      if (this.isObj(item)) (item as Obj)['active'] = true;
+    }
     const atTop = addsAtTop(this.sectionKey(), key);
     if (atTop) {
       items.unshift(item);
@@ -188,6 +357,7 @@ export class ObjectFields {
   }
 
   protected remove(key: string, index: number): void {
+    if (this.isNewsList(key) || this.readOnly()) return;
     if (this.isRequiredMenuItem(key, this.list(key)[index])) return;
     this.list(key).splice(index, 1);
     this.expanded.update((set) => new Set([...set].filter((id) => id !== `${key}:${index}`)));
@@ -196,6 +366,7 @@ export class ObjectFields {
   }
 
   protected move(key: string, index: number, delta: number): void {
+    if (this.isNewsList(key) || this.readOnly()) return;
     const items = this.list(key);
     const target = index + delta;
     if (target < 0 || target >= items.length) return;

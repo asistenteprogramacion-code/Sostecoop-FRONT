@@ -1,28 +1,40 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  container-type: inline-size;
+}
+
 .box {
-  display: flex;
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
   gap: 16px;
   align-items: center;
-  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
 }
 
 .thumb {
   position: relative;
-  width: 180px;
+  width: 100%;
   aspect-ratio: 16 / 10;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1.5px dashed #c6d6d6;
   background: var(--soft);
   overflow: hidden;
   display: grid;
   place-items: center;
   text-align: center;
-  flex-shrink: 0;
 }
 
 .thumb:has(img) {
   border-style: solid;
   border-color: transparent;
-  box-shadow: var(--shadow-sm);
 }
 
 .thumb img {
@@ -40,7 +52,7 @@
   display: grid;
   justify-items: center;
   gap: 6px;
-  color: #93a4ac;
+  color: #8299a4;
 }
 
 .empty svg {
@@ -76,13 +88,23 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
+  min-width: 0;
+  padding: 4px 8px;
 }
 
 .pick {
   position: relative;
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
   cursor: pointer;
+}
+
+.remove {
+  width: 100%;
 }
 
 .pick.disabled {
@@ -114,6 +136,7 @@
   flex-basis: 100%;
   font-size: 13px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .err {
@@ -126,4 +149,27 @@
 .err svg {
   width: 15px;
   height: 15px;
+}
+
+@container (max-width: 420px) {
+  .box {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .actions {
+    gap: 6px;
+    padding: 2px;
+  }
+}
+
+@container (max-width: 300px) {
+  .box {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .thumb {
+    max-width: 220px;
+  }
 }

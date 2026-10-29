@@ -15,6 +15,7 @@ export class ImageField {
 
   readonly value = input<string>('');
   readonly label = input<string>('Imagen');
+  readonly disabled = input(false);
   readonly valueChange = output<string>();
 
   protected readonly uploading = signal(false);

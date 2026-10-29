@@ -23,8 +23,9 @@ export class Footer {
     const value = this.settings()?.social?.whatsapp?.trim();
     if (!value) return null;
 
-    const number = value.replace(/\D/g, '');
-    if (!number) return null;
+    const digits = value.replace(/\D/g, '');
+    if (!digits) return null;
+    const number = digits.length === 10 ? `57${digits}` : digits;
 
     const message = encodeURIComponent('Hola, quiero más información sobre Sostecoop.');
     return `https://api.whatsapp.com/send?phone=${number}&text=${message}`;
@@ -40,7 +41,9 @@ export class Footer {
     if (whatsapp) {
       links.push({
         label: 'WhatsApp',
-        url: /^https?:\/\//.test(whatsapp) ? whatsapp : `https://wa.me/${whatsapp.replace(/\D/g, '')}`,
+        url: /^https?:\/\//.test(whatsapp)
+          ? whatsapp
+          : `https://wa.me/${whatsapp.replace(/\D/g, '').replace(/^(?!57)(\d{10})$/, '57$1')}`,
       });
     }
     return links;

@@ -1,11 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Icon } from '../../shared/icon';
 import { apiErrorMessage, ContactMessage } from '../admin-api';
 import { InboxStore } from '../inbox-store';
 import { timeAgo } from '../section-meta';
 import { Toast } from '../toast';
-
-type Filter = 'todos' | 'sin-leer';
 
 const dateFormat = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeStyle: 'short' });
 
@@ -19,7 +17,6 @@ export class Inbox {
   protected readonly store = inject(InboxStore);
   private readonly toast = inject(Toast);
 
-  protected readonly filter = signal<Filter>('todos');
   protected readonly openId = signal<number | null>(null);
   protected readonly busyId = signal<number | null>(null);
   /** Mensaje con la confirmación de borrado abierta. */
@@ -28,21 +25,10 @@ export class Inbox {
   protected readonly timeAgo = timeAgo;
   protected readonly skeletons = [1, 2, 3, 4];
 
-  protected readonly visible = computed(() =>
-    this.filter() === 'sin-leer'
-      ? this.store.messages().filter((m) => !m.read)
-      : this.store.messages(),
-  );
-
   protected toggle(msg: ContactMessage): void {
     const opening = this.openId() !== msg.id;
     this.openId.set(opening ? msg.id : null);
     this.confirmDeleteId.set(null);
-    if (opening && !msg.read) this.markRead(msg);
-  }
-
-  protected async markRead(msg: ContactMessage): Promise<void> {
-    await this.run(msg.id, () => this.store.markRead(msg.id), 'No se pudo marcar como leído.');
   }
 
   protected async remove(msg: ContactMessage): Promise<void> {

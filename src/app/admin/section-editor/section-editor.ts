@@ -56,6 +56,10 @@ export class SectionEditor {
   /** Copia de trabajo: el content se edita en su lugar y se envía completo. */
   protected readonly content = signal<Record<string, unknown>>({});
   protected readonly hasFields = computed(() => Object.keys(this.content()).length > 0);
+  protected readonly newsCategories = computed(() => {
+    this.version();
+    return newsCategoriesOf(this.content());
+  });
   protected readonly title = signal('');
   protected readonly visible = signal(true);
   protected readonly dirty = signal(false);
@@ -270,7 +274,26 @@ export class SectionEditor {
   private reset(section: Section): void {
     this.section.set(section);
     const content = structuredClone(section.content ?? {});
-    if (section.key === 'settings') content['menu'] = withRequiredMenuItems(content['menu']);
+    if (section.key === 'noticias' && Array.isArray(content['items'])) {
+      for (const item of content['items']) {
+        if (item && typeof item === 'object' && !Array.isArray(item) && !('active' in item)) {
+          (item as Record<string, unknown>)['active'] = true;
+        }
+      }
+    }
+    if (section.key === 'settings') {
+      content['menu'] = withRequiredMenuItems(content['menu']);
+      const social = content['social'];
+      if (social && typeof social === 'object' && !Array.isArray(social)) {
+        const whatsapp = (social as Record<string, unknown>)['whatsapp'];
+        if (typeof whatsapp === 'string') {
+          let digits = whatsapp.replace(/\D/g, '');
+          // Los datos anteriores guardaban el indicativo colombiano (+57).
+          if (digits.length === 12 && digits.startsWith('57')) digits = digits.slice(2);
+          (social as Record<string, unknown>)['whatsapp'] = digits.slice(0, 10);
+        }
+      }
+    }
     this.content.set(content);
     this.title.set(section.title);
     this.visible.set(section.visible);
@@ -297,4 +320,24 @@ function normalizeNews(content: Record<string, unknown>): void {
     item['slug'] = slug;
     item['reading_minutes'] = Number(item['reading_minutes']) || 0;
   }
+}
+
+const DEFAULT_NEWS_CATEGORIES = ['Educación financiera', 'Cooperativa', 'Consejos'];
+
+function newsCategoriesOf(content: Record<string, unknown>): string[] {
+  const stored = Array.isArray(content['categories']) ? content['categories'] : [];
+  const items = Array.isArray(content['items']) ? content['items'] : [];
+  const used = items
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && !Array.isArray(item))
+    .map((item) => item['category']);
+  const candidates = [...stored, ...used];
+  if (!Array.isArray(content['categories']) && !candidates.length) candidates.push(...DEFAULT_NEWS_CATEGORIES);
+
+  const unique = new Map<string, string>();
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const category = candidate.trim().slice(0, 40);
+    if (category && !unique.has(category.toLocaleLowerCase())) unique.set(category.toLocaleLowerCase(), category);
+  }
+  return [...unique.values()];
 }

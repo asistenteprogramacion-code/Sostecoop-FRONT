@@ -1,23 +1,73 @@
 <header class="bar">
   <a routerLink="/" fragment="inicio" class="brand" aria-label="Sostecoop, ir al inicio"><app-logo /></a>
 
-  <nav id="menu-principal" aria-label="Navegación principal">
-    @for (link of links(); track link.label + link.path + link.fragment) {
+  <nav id="menu-principal" class="desktop-nav" aria-label="Navegación principal">
+    @for (link of mainLinks(); track link.label + link.path + link.fragment) {
       @if (link.external) {
-        <a [href]="link.path" target="_blank" rel="noopener" (click)="menuOpen.set(false)">{{ link.label }}</a>
+        <a [href]="link.path" target="_blank" rel="noopener" (click)="closeMenus()">{{ link.label }}</a>
       } @else {
         <a
           [routerLink]="link.path"
           [fragment]="link.fragment ?? undefined"
           [class.active]="isActive(link)"
           [attr.aria-current]="isActive(link) ? 'location' : null"
-          (click)="menuOpen.set(false)"
+          (click)="closeMenus()"
+        >{{ link.label }}</a>
+      }
+    }
+    @if (overflowLinks().length) {
+      <div class="overflow-menu">
+        <button
+          class="overflow-toggle"
+          [class.active]="overflowActive()"
+          type="button"
+          aria-label="Mostrar más enlaces"
+          aria-haspopup="menu"
+          aria-controls="menu-overflow"
+          [attr.aria-expanded]="overflowOpen()"
+          (click)="toggleOverflow()"
+        >
+          <svg [class.rotated]="overflowOpen()" appIcon="chevron-down"></svg>
+        </button>
+        @if (overflowOpen()) {
+          <div class="overflow-panel" id="menu-overflow" role="menu" aria-label="Más enlaces">
+            @for (link of overflowLinks(); track link.label + link.path + link.fragment) {
+              @if (link.external) {
+                <a role="menuitem" [href]="link.path" target="_blank" rel="noopener" (click)="closeMenus()">{{ link.label }}</a>
+              } @else {
+                <a
+                  role="menuitem"
+                  [routerLink]="link.path"
+                  [fragment]="link.fragment ?? undefined"
+                  [class.active]="isActive(link)"
+                  [attr.aria-current]="isActive(link) ? 'location' : null"
+                  (click)="closeMenus()"
+                >{{ link.label }}</a>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </nav>
+
+  <nav id="menu-movil" class="mobile-nav" aria-label="Navegación principal">
+    @for (link of links(); track link.label + link.path + link.fragment) {
+      @if (link.external) {
+        <a [href]="link.path" target="_blank" rel="noopener" (click)="closeMenus()">{{ link.label }}</a>
+      } @else {
+        <a
+          [routerLink]="link.path"
+          [fragment]="link.fragment ?? undefined"
+          [class.active]="isActive(link)"
+          [attr.aria-current]="isActive(link) ? 'location' : null"
+          (click)="closeMenus()"
         >{{ link.label }}</a>
       }
     }
   </nav>
 
-  <a class="nav-cta" routerLink="/" fragment="contacto" (click)="menuOpen.set(false)">
+  <a class="nav-cta" routerLink="/" fragment="contacto" (click)="closeMenus()">
     <span>Hablemos</span> <svg appIcon="arrow"></svg>
   </a>
 
@@ -25,7 +75,7 @@
     class="menu-toggle"
     type="button"
     [attr.aria-expanded]="menuOpen()"
-    aria-controls="menu-principal"
+    aria-controls="menu-movil"
     [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'"
     (click)="toggleMenu()"
   >

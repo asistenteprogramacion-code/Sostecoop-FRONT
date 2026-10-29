@@ -361,3 +361,293 @@ textarea.adm-input {
   background: #e8eeee;
   color: #8a9ca5;
 }
+
+/* Atajo compacto y modal para administrar las categorías de noticias. */
+.adm .category-launcher {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.adm .category-launcher > div {
+  display: grid;
+  gap: 2px;
+}
+
+.adm .category-launcher b {
+  color: var(--navy);
+  font-size: 13px;
+}
+
+.adm .category-launcher small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.adm .category-launcher .adm-btn {
+  flex-shrink: 0;
+}
+
+.adm .category-total {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 5px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: #e5f3ee;
+  color: var(--green-strong);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.adm .category-dialog {
+  width: min(600px, calc(100vw - 32px));
+  max-height: min(84dvh, 740px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid #dce9e6;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 24px 80px #0b2c4333;
+}
+
+.adm .category-dialog::backdrop {
+  background: #08233780;
+  backdrop-filter: blur(3px);
+}
+
+.adm .category-dialog-content {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+}
+
+.adm .category-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.adm .category-dialog-eyebrow {
+  color: var(--green-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.adm .category-dialog-head h2 {
+  margin: 5px 0 4px;
+  font: 700 22px var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.adm .category-dialog-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.adm .category-dialog-close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.adm .category-dialog-close svg {
+  width: 17px;
+  height: 17px;
+}
+
+.adm .category-dialog-close:hover {
+  background: var(--soft);
+  color: var(--navy);
+}
+
+.adm .category-create {
+  display: grid;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid #dce9e6;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f2f8f6, #fbfdfc);
+}
+
+.adm .category-create > label {
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.adm .category-create-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 9px;
+  min-width: 0;
+}
+
+.adm .category-create-controls .adm-input {
+  min-width: 0;
+  background: #fff;
+}
+
+.adm .category-create-controls .adm-btn {
+  flex-shrink: 0;
+}
+
+.adm .category-create > small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.adm .category-list {
+  display: grid;
+  gap: 10px;
+}
+
+.adm .category-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.adm .category-list-head h3 {
+  margin: 0;
+  color: var(--navy);
+  font: 650 14px var(--font-display);
+}
+
+.adm .category-list-head > span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 7px;
+  background: var(--soft);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.adm .category-chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+  padding: 1px 2px 2px 1px;
+}
+
+.adm .category-chip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 7px 8px 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--navy);
+}
+
+.adm .category-chip-name {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm .category-chip > small {
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.adm .category-delete {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #83959e;
+  cursor: pointer;
+}
+
+.adm .category-delete svg {
+  width: 15px;
+  height: 15px;
+}
+
+.adm .category-delete:hover:not(:disabled) {
+  background: var(--adm-danger-soft);
+  color: var(--adm-danger);
+}
+
+.adm .category-delete:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.adm .category-empty {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 4px;
+  padding: 22px;
+  border: 1px dashed #c6d6d6;
+  border-radius: 12px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+}
+
+.adm .category-empty b {
+  color: var(--navy);
+}
+
+.adm .category-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 560px) {
+  .adm .category-dialog-content {
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .adm .category-create-controls,
+  .adm .category-chips {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .adm .category-create-controls .adm-btn {
+    width: 100%;
+  }
+}

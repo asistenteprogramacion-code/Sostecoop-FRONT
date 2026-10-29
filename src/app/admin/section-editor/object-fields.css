@@ -6,6 +6,10 @@
   min-width: 0;
 }
 
+:host(.social-links) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 /* Los grupos y elementos son contenedores: los campos internos se adaptan a su ancho. */
 .group,
 .item-body {
@@ -68,6 +72,16 @@
   min-width: 0;
 }
 
+.group.menu-links {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.menu-links legend,
+.menu-links .none,
+.menu-links .add {
+  grid-column: 1 / -1;
+}
+
 legend {
   float: left;
   width: 100%;
@@ -110,6 +124,61 @@ legend + * {
 .fold-all button:hover {
   background: white;
   color: var(--navy);
+}
+
+.news-tabs {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.news-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.news-tabs button:hover {
+  color: var(--navy);
+}
+
+.news-tabs button.selected {
+  background: var(--navy);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.news-tabs button span {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: #eaf1f0;
+  color: var(--navy);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.news-tabs button.selected span {
+  background: #ffffff24;
+  color: white;
 }
 
 .item {
@@ -245,11 +314,105 @@ legend + * {
   color: var(--adm-danger);
 }
 
+.news-inactive {
+  border-color: #e7e9ed;
+  background: #fcfcfd;
+}
+
+.news-inactive .item-text b {
+  color: #657784;
+}
+
+.news-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  min-height: 30px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid #ccebe0;
+  background: #e6f5ef;
+  color: var(--green-strong);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.news-state.inactive {
+  border-color: #dfe5e8;
+  background: #eef1f3;
+  color: #62727d;
+}
+
+.news-state-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #15966f;
+  box-shadow: 0 0 0 3px #15966f1a;
+}
+
+.news-state.inactive .news-state-dot {
+  background: #84939c;
+  box-shadow: 0 0 0 3px #84939c1a;
+}
+
+.news-toggle {
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.news-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .item-body {
   padding: 4px 16px 18px;
   border-top: 1px solid var(--line);
   padding-top: 16px;
   animation: unfold 0.25s var(--ease-out);
+}
+
+.news-edit-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  grid-column: 1 / -1;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #ccebe0;
+  border-radius: 12px;
+  background: #f0faf6;
+  color: #176c56;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.news-edit-notice.locked {
+  border-color: #f0d6a9;
+  background: #fff8eb;
+  color: #8b5a13;
+}
+
+.news-edit-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d9f2e8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.news-edit-notice.locked .news-edit-icon {
+  background: #f8e7c8;
 }
 
 @keyframes unfold {
@@ -260,6 +423,7 @@ legend + * {
 }
 
 .none {
+  grid-column: 1 / -1;
   color: var(--muted);
   font-size: 14px;
 }
@@ -291,6 +455,26 @@ legend + * {
   border-color: var(--green);
 }
 
+.add:disabled {
+  color: var(--muted);
+  border-color: #d6e0df;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.menu-limit {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .group.menu-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* En espacios angostos todo va en una columna y las acciones se compactan. */
 @container (max-width: 520px) {
   :host {
@@ -310,4 +494,5 @@ legend + * {
     order: 2;
     margin-left: auto;
   }
+
 }

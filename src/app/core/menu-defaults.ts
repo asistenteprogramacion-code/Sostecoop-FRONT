@@ -12,8 +12,9 @@ export const DEFAULT_MENU: readonly MenuItemDefault[] = [
 ];
 
 export const REQUIRED_MENU_ANCHORS = new Set(DEFAULT_MENU.map((item) => item.anchor));
+export const MAX_MENU_ITEMS = 10;
 
-/** Agrega los enlaces base que falten y conserva los enlaces extra del usuario. */
+/** Conserva el orden guardado, agrega los enlaces base que falten al final y evita duplicados. */
 export function withRequiredMenuItems(value: unknown): MenuItemDefault[] {
   const items = Array.isArray(value)
     ? (value as Partial<MenuItemDefault>[]).filter(
@@ -21,10 +22,23 @@ export function withRequiredMenuItems(value: unknown): MenuItemDefault[] {
           typeof item?.label === 'string' && typeof item.anchor === 'string',
       )
     : [];
-  const required = DEFAULT_MENU.map((base) => {
-    const saved = items.find((item) => item.anchor === base.anchor);
-    return { ...base, label: saved?.label.trim() || base.label };
-  });
-  const optional = items.filter((item) => !REQUIRED_MENU_ANCHORS.has(item.anchor));
-  return [...required, ...optional];
+  const defaultsByAnchor = new Map(DEFAULT_MENU.map((item) => [item.anchor, item]));
+  const ordered: MenuItemDefault[] = [];
+  const seen = new Set<string>();
+
+  for (const item of items) {
+    if (seen.has(item.anchor)) continue;
+    seen.add(item.anchor);
+    const base = defaultsByAnchor.get(item.anchor);
+    ordered.push({
+      ...item,
+      label: item.label.trim() || base?.label || item.label,
+    });
+  }
+
+  for (const item of DEFAULT_MENU) {
+    if (!seen.has(item.anchor)) ordered.push({ ...item });
+  }
+
+  return ordered;
 }

@@ -168,6 +168,7 @@ export const NEWS: NewsArticle[] = [
 
 /** Noticia tal como la guarda el backend en content.items de la sección "noticias". */
 interface ApiNewsItem {
+  active?: boolean;
   slug?: string;
   title?: string;
   category?: string;
@@ -197,7 +198,7 @@ export function newsFeed(content: SiteContent): Signal<NewsArticle[]> {
     const items = data?.content['items'];
     if (!Array.isArray(items)) return data === null ? [] : NEWS;
     return (items as ApiNewsItem[])
-      .filter((item) => item.title?.trim())
+      .filter((item) => item.active !== false && item.title?.trim())
       .map(fromApi)
       .sort((a, b) => b.isoDate.localeCompare(a.isoDate));
   });

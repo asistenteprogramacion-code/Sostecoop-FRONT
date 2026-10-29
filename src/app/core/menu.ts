@@ -34,12 +34,12 @@ export function siteMenu(content: SiteContent): Signal<MenuLink[]> {
       .filter((i) => i.label?.trim() && i.anchor?.trim())
       .map((i) => toLink(i.label!.trim(), i.anchor!.trim()))
       .filter((l) => !l.fragment || content.isVisible(keyOfAnchor(l.fragment)));
-    const required = DEFAULT_MENU.map((defaultItem) =>
-      links.find((link) => link.fragment === defaultItem.anchor!.slice(1)) ??
-      toLink(defaultItem.label!, defaultItem.anchor!),
-    );
-    const requiredAnchors = new Set(required.map((link) => link.fragment));
-    return [...required, ...links.filter((link) => !requiredAnchors.has(link.fragment))];
+    const existingAnchors = new Set(links.map((link) => link.fragment));
+    const missingDefaults = DEFAULT_MENU
+      .filter((item) => !existingAnchors.has(item.anchor.slice(1)))
+      .map((item) => toLink(item.label, item.anchor));
+
+    return [...links, ...missingDefaults];
   });
 }
 

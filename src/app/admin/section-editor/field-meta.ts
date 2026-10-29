@@ -47,11 +47,16 @@ const HINTS: Record<string, string> = {
   summary: 'Una o dos frases. Se ve en la tarjeta de la noticia.',
   body:
     'Separa los párrafos con una línea en blanco. Para un subtítulo empieza la línea con «## », para una lista con «- » y para una cita destacada con «> ».',
-  whatsapp: 'Número con indicativo, por ejemplo +57 300 123 4567.',
+};
+
+const PLACEHOLDERS: Record<string, string> = {
+  facebook: 'https://facebook.com/tu-cooperativa',
+  instagram: 'https://instagram.com/tu-cooperativa',
+  whatsapp: '3001234567',
 };
 
 /** Campos internos que el admin no debe tocar. */
-const HIDDEN_KEYS = new Set(['template', 'slug', 'reading_minutes', 'logo_url']);
+const HIDDEN_KEYS = new Set(['template', 'slug', 'reading_minutes', 'logo_url', 'created_at', 'categories']);
 
 const LONG_KEYS = new Set([
   'subtitle',
@@ -78,6 +83,7 @@ const ITEM_TEMPLATES: Record<string, () => unknown> = {
   'faq.items': () => ({ question: '', answer: '' }),
   'settings.menu': () => ({ label: '', anchor: '' }),
   'noticias.items': () => ({
+    active: true,
     slug: '',
     title: '',
     category: '',
@@ -125,6 +131,10 @@ export function listLabel(sectionKey: string, key: string): string {
 
 export function fieldHint(key: string): string {
   return HINTS[key] ?? '';
+}
+
+export function fieldPlaceholder(key: string): string {
+  return PLACEHOLDERS[key] ?? '';
 }
 
 export function isHiddenField(key: string): boolean {

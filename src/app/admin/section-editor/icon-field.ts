@@ -11,7 +11,7 @@ import { Icon } from '../../shared/icon';
       <span>{{ label() }}</span>
       <span class="row">
         <span class="adm-tile preview" aria-hidden="true"><svg [appIcon]="current()"></svg></span>
-        <select class="adm-input" (change)="valueChange.emit($any($event.target).value)">
+        <select class="adm-input" [disabled]="disabled()" (change)="valueChange.emit($any($event.target).value)">
           @for (choice of choices; track choice.id) {
             <option [value]="choice.id" [selected]="choice.id === current()">{{ choice.label }}</option>
           }
@@ -45,6 +45,7 @@ export class IconField {
 
   readonly value = input<string>('');
   readonly label = input('Ícono');
+  readonly disabled = input(false);
   readonly valueChange = output<string>();
 
   /** Nombres viejos o desconocidos ("piggy-bank") se muestran con su equivalente. */

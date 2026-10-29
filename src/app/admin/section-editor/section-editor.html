@@ -27,7 +27,7 @@
     <a class="adm-btn ghost small" routerLink="/admin/secciones">Ver el contenido del sitio</a>
   </div>
 } @else if (section(); as section) {
-  <header class="adm-page-head">
+  <header class="adm-page-head" [class.settings-head]="isSettings()">
     <div class="title">
       <span class="adm-tile big"><svg [appIcon]="icon(section)"></svg></span>
       <div>
@@ -35,11 +35,49 @@
         <p>{{ isSettings() ? 'Menú, pie de página, redes sociales y nombre del sitio.' : description(section) }}</p>
       </div>
     </div>
+    @if (isSettings()) {
+      <div class="settings-actions">
+        <div class="status" aria-live="polite">
+          @if (showErrors() && errorCount()) {
+            <p class="adm-alert" role="alert">
+              <svg appIcon="alert"></svg>
+              {{ errorCount() === 1 ? 'Hay 1 campo por revisar.' : 'Hay ' + errorCount() + ' campos por revisar.' }}
+            </p>
+          } @else if (saveState() === 'error' && saveError()) {
+            <p class="adm-alert" role="alert"><svg appIcon="alert"></svg>{{ saveError() }}</p>
+          } @else if (dirty() && saveState() !== 'saving') {
+            <p class="dirty"><span class="dot"></span> Tienes cambios sin guardar</p>
+          } @else if (saveState() === 'saved') {
+            <p class="saved"><svg appIcon="check"></svg> Guardado · {{ savedAt() }}</p>
+          } @else {
+            <p class="meta">Sin cambios · última edición {{ timeAgo(section.updated_at) }}</p>
+          }
+        </div>
+
+        <button class="adm-btn primary" type="submit" form="section-editor-form" [disabled]="!dirty() || saveState() === 'saving'">
+          {{ saveState() === 'saving' ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+
+        @if (dirty() && saveState() !== 'saving') {
+          @if (confirmingDiscard()) {
+            <div class="confirm" role="group" aria-label="Confirmar descarte">
+              <span>¿Descartar los cambios sin guardar?</span>
+              <div>
+                <button class="adm-btn danger solid small" type="button" (click)="discard()">Descartar</button>
+                <button class="adm-btn quiet small" type="button" (click)="confirmingDiscard.set(false)">Cancelar</button>
+              </div>
+            </div>
+          } @else {
+            <button class="adm-btn quiet" type="button" (click)="confirmingDiscard.set(true)">Descartar cambios</button>
+          }
+        }
+      </div>
+    }
   </header>
 
-  <form class="layout" (ngSubmit)="save()" novalidate>
+  <form id="section-editor-form" class="layout" [class.settings-layout]="isSettings()" (ngSubmit)="save()" novalidate>
     <div class="adm-card fields">
-      <app-object-fields [obj]="content()" [sectionKey]="section.key" [errors]="errors()" (changed)="markDirty()" />
+      <app-object-fields [obj]="content()" [sectionKey]="section.key" [newsCategories]="newsCategories()" [errors]="errors()" (changed)="markDirty()" />
       @if (!hasFields()) {
         <div class="adm-empty">
           <span class="art"><svg appIcon="layers"></svg></span>
@@ -49,6 +87,7 @@
       }
     </div>
 
+    @if (!isSettings()) {
     <aside class="side">
       <!-- Guardar -->
       <div class="adm-card block">
@@ -147,8 +186,9 @@
         </div>
       }
     </aside>
+    }
 
-    @if (dirty() || saveState() === 'saving') {
+    @if (!isSettings() && (dirty() || saveState() === 'saving')) {
       <div class="save-bar">
         <span>{{ showErrors() && errorCount() ? 'Revisa los campos marcados' : 'Tienes cambios sin guardar' }}</span>
         <button class="adm-btn primary small" type="submit" [disabled]="saveState() === 'saving'">

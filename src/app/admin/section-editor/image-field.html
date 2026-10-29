@@ -16,13 +16,13 @@
     </div>
 
     <div class="actions">
-      <label class="adm-btn ghost small pick" [class.disabled]="uploading()">
+      <label class="adm-btn ghost small pick" [class.disabled]="uploading() || disabled()">
         <svg appIcon="upload"></svg>
         {{ uploading() ? 'Subiendo…' : value() ? 'Cambiar imagen' : 'Subir imagen' }}
-        <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="uploading()" (change)="pick($event)" />
+        <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="uploading() || disabled()" (change)="pick($event)" />
       </label>
       @if (value() && !uploading()) {
-        <button class="adm-btn quiet small remove" type="button" (click)="valueChange.emit('')">Quitar</button>
+        <button class="adm-btn quiet small remove" type="button" [disabled]="disabled()" (click)="valueChange.emit('')">Quitar</button>
       }
       <small class="hint">PNG, JPG o WEBP · máx. 5 MB</small>
       @if (error()) {
