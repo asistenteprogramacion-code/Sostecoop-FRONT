@@ -136,11 +136,9 @@ function replaceLegacyName(value: string): string {
   return value.replace(/Fondo\s*Futuro/gi, 'Sostecoop');
 }
 
-/** Quita valores vacíos para que no tapen el contenido por defecto. */
+/** Usa el diseño solo para campos ausentes; los vacíos son cambios guardados por el admin. */
 function withoutEmpty(content: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(
-    Object.entries(content ?? {}).filter(
-      ([, v]) => v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && !v.length),
-    ),
+    Object.entries(content ?? {}).filter(([, value]) => value !== undefined),
   );
 }
