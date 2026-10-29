@@ -133,7 +133,7 @@ export class ObjectFields {
   }
 
   private newsHasBeenSaved(item: unknown): boolean {
-    return this.isObj(item) && typeof (item as Obj)['slug'] === 'string' && !!String((item as Obj)['slug']).trim();
+    return this.isObj(item) && typeof (item as Obj)['id'] === 'string' && !!String((item as Obj)['id']).trim();
   }
 
   private newsCreatedAt(item: unknown): number | null {
