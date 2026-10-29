@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { anchorOf, CORE_KEYS, slugify } from '../../core/modules';
+import { anchorOf, CORE_KEYS } from '../../core/modules';
 import { REQUIRED_MENU_ANCHORS, withRequiredMenuItems } from '../../core/menu-defaults';
 import { Section } from '../../core/site-content';
 import { Icon } from '../../shared/icon';
@@ -307,18 +307,34 @@ export class SectionEditor {
   }
 }
 
-/** Completa las direcciones vacías de las noticias y evita que se repitan. */
+/** Slug de una noticia: igual que slugify, pero sin el límite de 40 caracteres de las claves de módulo. */
+function newsSlugify(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** Completa slugs de noticias nuevas y deja intactos los de noticias ya guardadas. */
 function normalizeNews(content: Record<string, unknown>): void {
   const items = content['items'];
   if (!Array.isArray(items)) return;
-  const used = new Set<string>();
-  for (const item of items as Record<string, unknown>[]) {
-    const base = slugify(String(item['slug'] || item['title'] || '')) || 'noticia';
+  const list = items as Record<string, unknown>[];
+  const used = new Set<string>(
+    list.filter((item) => item['id'] && item['slug']).map((item) => String(item['slug'])),
+  );
+
+  for (const item of list) {
+    item['reading_minutes'] = Number(item['reading_minutes']) || 0;
+    if (item['id'] && String(item['slug'] ?? '').trim()) continue;
+
+    const base = newsSlugify(String(item['slug'] || item['title'] || '')) || 'noticia';
     let slug = base;
     for (let n = 2; used.has(slug); n++) slug = `${base}-${n}`;
     used.add(slug);
     item['slug'] = slug;
-    item['reading_minutes'] = Number(item['reading_minutes']) || 0;
   }
 }
 
